@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/truex-android-google-ima-csai-ref-app.iml" filepath="$PROJECT_DIR$/.idea/modules/truex-android-google-ima-csai-ref-app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/ReferenceApp/truex-android-google-ima-csai-ref-app.ReferenceApp.iml" filepath="$PROJECT_DIR$/.idea/modules/ReferenceApp/truex-android-google-ima-csai-ref-app.ReferenceApp.iml" />
+    </modules>
+  </component>
+</project>
