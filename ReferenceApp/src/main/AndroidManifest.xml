@@ -1,29 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    package="com.truex.referenceapp">
-
+    package="com.google.ads.interactivemedia.v3.samples.videoplayerapp">
+    <!-- Required permissions for the IMA SDK -->
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <application
-        android:networkSecurityConfig="@xml/network_security_config"
         android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
-        android:supportsRtl="true"
         android:theme="@style/AppTheme"
-        android:usesCleartextTraffic="true">
+        android:networkSecurityConfig="@xml/network_security_config">
         <meta-data
-            android:name="com.google.android.gms.ads.AD_MANAGER_APP"
-            android:value="true"/>
+            android:name="com.google.android.gms.cast.framework.OPTIONS_PROVIDER_CLASS_NAME"
+            android:value="com.google.ads.interactivemedia.v3.samples.videoplayerapp.CastOptionsProvider" />
         <activity
-            android:name="com.truex.referenceapp.MainActivity"
-            android:banner="@drawable/app_icon"
-            android:icon="@drawable/app_icon"
+            android:name=".MyActivity"
             android:label="@string/app_name"
-            android:logo="@drawable/app_icon"
-            android:configChanges="orientation|screenSize">
+            android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
