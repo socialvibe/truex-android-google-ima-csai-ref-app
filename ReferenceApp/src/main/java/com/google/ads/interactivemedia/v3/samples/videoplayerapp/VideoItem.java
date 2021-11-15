@@ -8,6 +8,7 @@ public final class VideoItem {
   private final String videoUrl;
   private final String adTagUrl;
   private final boolean isVmap;
+  private String adTagResponse;
 
   public VideoItem(
       String video, String videoTitle, String adTag, int resourceId, boolean isVmapAd) {
@@ -17,6 +18,16 @@ public final class VideoItem {
     adTagUrl = adTag;
     videoUrl = video;
     isVmap = isVmapAd;
+  }
+
+  public VideoItem(String video, String videoTitle, String adTag, int resourceId, boolean isVmapAd, String adTagResponse) {
+    super();
+    thumbnailResourceId = resourceId;
+    title = videoTitle;
+    adTagUrl = adTag;
+    videoUrl = video;
+    isVmap = isVmapAd;
+    this.adTagResponse = adTagResponse;
   }
 
   /** Returns the video thumbnail image resource. */
@@ -43,4 +54,6 @@ public final class VideoItem {
   public boolean getIsVmap() {
     return isVmap;
   }
+
+  public String getAdTagResponse() { return adTagResponse; }
 }

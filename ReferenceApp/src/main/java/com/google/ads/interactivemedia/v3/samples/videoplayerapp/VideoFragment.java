@@ -1,5 +1,7 @@
 package com.google.ads.interactivemedia.v3.samples.videoplayerapp;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -8,6 +10,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ScrollView;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.fragment.app.Fragment;
@@ -20,6 +25,7 @@ public class VideoFragment extends Fragment {
   private TextView videoTitle;
   private ScrollView videoExampleLayout;
   private OnVideoFragmentViewCreatedListener viewCreatedCallback;
+  private final Boolean debugEnabled = true;
 
   /** Listener called when the fragment's onCreateView is fired. */
   public interface OnVideoFragmentViewCreatedListener {
@@ -30,11 +36,16 @@ public class VideoFragment extends Fragment {
   public View onCreateView(
       LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     View rootView = inflater.inflate(R.layout.fragment_video, container, false);
-    initUi(rootView);
     if (viewCreatedCallback != null) {
       viewCreatedCallback.onVideoFragmentViewCreated();
     }
     return rootView;
+  }
+
+  @Override
+  public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+    super.onViewCreated(view, savedInstanceState);
+    initUi();
   }
 
   public void loadVideo(VideoItem videoItem) {
@@ -45,15 +56,18 @@ public class VideoFragment extends Fragment {
 
     videoPlayerController.setContentVideo(videoItem.getVideoUrl());
     videoPlayerController.setAdTagUrl(videoItem.getAdTagUrl());
+    videoPlayerController.setAdTagResponse(videoItem.getAdTagResponse());
     videoTitle.setText(videoItem.getTitle());
   }
 
-  private void initUi(View rootView) {
+  private void initUi() {
+    View rootView = getView();
     VideoPlayerWithAdPlayback videoPlayerWithAdPlayback =
         rootView.findViewById(R.id.videoPlayerWithAdPlayback);
     View playButton = rootView.findViewById(R.id.playButton);
-    View playPauseToggle = rootView.findViewById(R.id.videoContainer);
+    View videoContainer = rootView.findViewById(R.id.videoContainer);
     ViewGroup companionAdSlot = rootView.findViewById(R.id.companionAdSlot);
+
     videoTitle = rootView.findViewById(R.id.video_title);
     videoExampleLayout = rootView.findViewById(R.id.videoExampleLayout);
     videoExampleLayout.setOverScrollMode(View.OVER_SCROLL_ALWAYS);
@@ -69,6 +83,12 @@ public class VideoFragment extends Fragment {
     forceHeight.applyTo(constraintLayout);
 
     final TextView logText = rootView.findViewById(R.id.logText);
+
+    if (debugEnabled) {
+      logText.setVisibility(View.VISIBLE);
+    } else {
+      logText.setVisibility(View.GONE);
+    }
 
     // Provide an implementation of a logger so we can output SDK events to the UI.
     VideoPlayerController.Logger logger =
@@ -87,10 +107,14 @@ public class VideoFragment extends Fragment {
             this.getActivity(),
             videoPlayerWithAdPlayback,
             playButton,
-            playPauseToggle,
+            videoContainer,
             getString(R.string.ad_ui_lang),
             companionAdSlot,
-            logger);
+            logger,
+            (popupUrl) -> {
+                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(popupUrl));
+                startActivity(browserIntent);
+            });
 
     // If we've already selected a video, load it now.
     if (videoItem != null) {

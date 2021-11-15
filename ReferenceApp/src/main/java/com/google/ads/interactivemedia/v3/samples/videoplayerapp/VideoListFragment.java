@@ -12,6 +12,11 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ListView;
 import androidx.fragment.app.Fragment;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -76,12 +81,7 @@ public class VideoListFragment extends Fragment {
             if (selectedCallback != null) {
               VideoItem selectedVideo = (VideoItem) listView.getItemAtPosition(position);
 
-              // If applicable, prompt the user to input a custom ad tag.
-              if (selectedVideo.getAdTagUrl().equals(getString(R.string.custom_ad_tag_value))) {
-                getCustomAdTag(selectedVideo);
-              } else {
-                selectedCallback.onVideoSelected(selectedVideo);
-              }
+              selectedCallback.onVideoSelected(selectedVideo);
             }
           }
         });
@@ -89,56 +89,30 @@ public class VideoListFragment extends Fragment {
     return rootView;
   }
 
-  private void getCustomAdTag(VideoItem originalVideoItem) {
-    View dialogueView = inflater.inflate(R.layout.custom_ad_tag, container, false);
-    final EditText txtUrl = (EditText) dialogueView.findViewById(R.id.customTag);
-    txtUrl.setHint("VAST ad tag URL");
-    final CheckBox isVmap = (CheckBox) dialogueView.findViewById(R.id.isVmap);
-    final VideoItem videoItem = originalVideoItem;
-
-    new AlertDialog.Builder(this.getActivity())
-        .setTitle("Custom VAST Ad Tag URL")
-        .setView(dialogueView)
-        .setPositiveButton(
-            "OK",
-            new DialogInterface.OnClickListener() {
-              public void onClick(DialogInterface dialog, int whichButton) {
-                String customAdTagUrl = txtUrl.getText().toString();
-                VideoItem customAdTagVideoItem =
-                    new VideoItem(
-                        videoItem.getVideoUrl(),
-                        videoItem.getTitle(),
-                        customAdTagUrl,
-                        videoItem.getImageResource(),
-                        isVmap.isChecked());
-
-                if (selectedCallback != null) {
-                  selectedCallback.onVideoSelected(customAdTagVideoItem);
-                }
-              }
-            })
-        .setNegativeButton(
-            "Cancel",
-            new DialogInterface.OnClickListener() {
-              public void onClick(DialogInterface dialog, int whichButton) {}
-            })
-        .show();
-  }
-
   private List<VideoItem> getVideoItems() {
     final List<VideoItem> videoItems = new ArrayList<VideoItem>();
 
-    // Iterate through the videos' metadata and add video items to list.
-    for (int i = 0; i < VideoMetadata.APP_VIDEOS.size(); i++) {
-      VideoMetadata videoMetadata = VideoMetadata.APP_VIDEOS.get(i);
-      videoItems.add(
-          new VideoItem(
-              videoMetadata.videoUrl,
-              videoMetadata.title,
-              videoMetadata.adTagUrl,
-              videoMetadata.thumbnail,
-              videoMetadata.isVmap));
-    }
+    videoItems.add(
+            new VideoItem(
+              "https://storage.googleapis.com/gvabox/media/samples/stock.mp4",
+              "Truex vmap",
+              "url",
+              R.drawable.thumbnail1,
+    true,
+              getRawFileContents(R.raw.truex_vmap)
+      )
+    );
+
+    videoItems.add(
+            new VideoItem(
+              "https://storage.googleapis.com/gvabox/media/samples/stock.mp4",
+              "Plain Vmap",
+              "https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/ad_rule_samples&ciu_szs=300x250&ad_rule=1&impl=s&gdfp_req=1&env=vp&output=vmap&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ar%3Dpremidpost&cmsid=496&vid=short_onecue&correlator=",
+              R.drawable.thumbnail1,
+              false
+            )
+    );
+
 
     return videoItems;
   }
@@ -149,5 +123,32 @@ public class VideoListFragment extends Fragment {
     if (resumeCallback != null) {
       resumeCallback.onVideoListFragmentResumed();
     }
+  }
+
+  private String getRawFileContents(int resourceId) {
+    InputStream vastContentStream = getContext().getResources().openRawResource(resourceId);
+
+    StringBuilder stringBuilder = new StringBuilder();
+    BufferedReader reader = null;
+    try {
+      reader = new BufferedReader(new InputStreamReader(vastContentStream));
+
+      String line;
+      while ((line = reader.readLine()) != null) {
+        stringBuilder.append(line);
+      }
+    } catch (IOException e) {
+      e.printStackTrace();
+    } finally {
+      if (reader != null) {
+        try {
+          reader.close();
+        } catch (IOException e) {
+          e.printStackTrace();
+        }
+      }
+    }
+
+    return stringBuilder.toString();
   }
 }

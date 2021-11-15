@@ -1,8 +1,7 @@
-# true[X] Reference App
+# true[X] Client-Side Google IMA Android Reference App
 
 ## Reference app for Android Mobile TruexAdRenderer integration
-
-This is an Android Mobile application exposing direct calls into `TruexAdRenderer` (also referenced as TAR in the walkthrough and code) instances, enabling functional testing as well as prototyping. The application is set up with a simple activity and the calls in the `MainActivity` should be self-explanatory.  This samples an integration where the ads are handled on the client side, but it can be extended to other ad solutions such as server stitched ads.
+This is an Android Mobile application that builds on top of Google's custom IMA example, https://github.com/googleads/googleads-ima-html5 (Advanced sample).  This app showcases how to integrate the true[X] library in combination with Google Client Side IMA ads.
 
 
 ### Access the true[X] Ad Renderer Library

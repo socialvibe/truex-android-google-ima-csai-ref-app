@@ -4,14 +4,11 @@ import android.app.UiModeManager;
 import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
-import com.google.android.gms.cast.framework.CastButtonFactory;
 
 /** Main Activity. */
 public class MyActivity extends AppCompatActivity
@@ -62,27 +59,6 @@ public class MyActivity extends AppCompatActivity
     if (castApplication != null) {
       castApplication.onPause();
     }
-  }
-
-  @Override
-  public boolean onCreateOptionsMenu(Menu menu) {
-    super.onCreateOptionsMenu(menu);
-
-    // Inflate the menu; this adds items to the action bar if it is present.
-    getMenuInflater().inflate(R.menu.my, menu);
-
-    CastButtonFactory.setUpMediaRouteButton(
-        getApplicationContext(), menu, R.id.media_route_menu_item);
-    return true;
-  }
-
-  @Override
-  public boolean onOptionsItemSelected(MenuItem item) {
-    // Handle action bar item clicks here. The action bar will
-    // automatically handle clicks on the Home/Up button, so long
-    // as you specify a parent activity in AndroidManifest.xml.
-    int id = item.getItemId();
-    return super.onOptionsItemSelected(item);
   }
 
   @Override
@@ -159,13 +135,11 @@ public class MyActivity extends AppCompatActivity
       castApplication.setVideoFragment(videoFragment);
     }
 
-    invalidateOptionsMenu();
     orientAppUi();
   }
 
   @Override
   public void onVideoListFragmentResumed() {
-    invalidateOptionsMenu();
     orientAppUi();
   }
 
