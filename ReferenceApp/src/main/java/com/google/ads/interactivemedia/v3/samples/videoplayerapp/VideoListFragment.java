@@ -71,7 +71,12 @@ public class VideoListFragment extends Fragment {
 
     final ListView listView = (ListView) rootView.findViewById(R.id.videoListView);
     VideoItemAdapter videoItemAdapter =
-        new VideoItemAdapter(rootView.getContext(), R.layout.video_item, getVideoItems());
+            null;
+    try {
+      videoItemAdapter = new VideoItemAdapter(rootView.getContext(), R.layout.video_item, getVideoItems());
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
     listView.setAdapter(videoItemAdapter);
 
     listView.setOnItemClickListener(
@@ -89,28 +94,28 @@ public class VideoListFragment extends Fragment {
     return rootView;
   }
 
-  private List<VideoItem> getVideoItems() {
+  private List<VideoItem> getVideoItems() throws IOException {
     final List<VideoItem> videoItems = new ArrayList<VideoItem>();
 
     videoItems.add(
-            new VideoItem(
-              "https://storage.googleapis.com/gvabox/media/samples/stock.mp4",
-              "Truex vmap",
-              "url",
-              R.drawable.thumbnail1,
-    true,
-              getRawFileContents(R.raw.truex_vmap)
+      new VideoItem(
+        "https://storage.googleapis.com/gvabox/media/samples/stock.mp4",
+        "Truex vmap",
+        "url",
+        R.drawable.thumbnail1,
+true,
+        getRawFileContents(R.raw.truex_vmap)
       )
     );
 
     videoItems.add(
-            new VideoItem(
-              "https://storage.googleapis.com/gvabox/media/samples/stock.mp4",
-              "Plain Vmap",
-              "https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/ad_rule_samples&ciu_szs=300x250&ad_rule=1&impl=s&gdfp_req=1&env=vp&output=vmap&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ar%3Dpremidpost&cmsid=496&vid=short_onecue&correlator=",
-              R.drawable.thumbnail1,
-              false
-            )
+      new VideoItem(
+        "https://storage.googleapis.com/gvabox/media/samples/stock.mp4",
+        "Plain Vmap",
+        "https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/ad_rule_samples&ciu_szs=300x250&ad_rule=1&impl=s&gdfp_req=1&env=vp&output=vmap&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ar%3Dpremidpost&cmsid=496&vid=short_onecue&correlator=",
+        R.drawable.thumbnail1,
+        false
+      )
     );
 
 
@@ -125,7 +130,7 @@ public class VideoListFragment extends Fragment {
     }
   }
 
-  private String getRawFileContents(int resourceId) {
+  private String getRawFileContents(int resourceId) throws IOException {
     InputStream vastContentStream = getContext().getResources().openRawResource(resourceId);
 
     StringBuilder stringBuilder = new StringBuilder();
@@ -137,15 +142,9 @@ public class VideoListFragment extends Fragment {
       while ((line = reader.readLine()) != null) {
         stringBuilder.append(line);
       }
-    } catch (IOException e) {
-      e.printStackTrace();
     } finally {
       if (reader != null) {
-        try {
           reader.close();
-        } catch (IOException e) {
-          e.printStackTrace();
-        }
       }
     }
 

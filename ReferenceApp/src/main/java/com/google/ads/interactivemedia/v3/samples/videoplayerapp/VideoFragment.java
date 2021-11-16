@@ -114,7 +114,8 @@ public class VideoFragment extends Fragment {
             (popupUrl) -> {
                 Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(popupUrl));
                 startActivity(browserIntent);
-            });
+            },
+            debugEnabled);
 
     // If we've already selected a video, load it now.
     if (videoItem != null) {

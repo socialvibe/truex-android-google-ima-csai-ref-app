@@ -3,11 +3,10 @@
 package com.google.ads.interactivemedia.v3.samples.videoplayerapp;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-
-import androidx.fragment.app.FragmentActivity;
 
 import com.google.ads.interactivemedia.v3.api.Ad;
 import com.google.ads.interactivemedia.v3.api.AdDisplayContainer;
@@ -20,22 +19,23 @@ import com.google.ads.interactivemedia.v3.api.AdsRenderingSettings;
 import com.google.ads.interactivemedia.v3.api.AdsRequest;
 import com.google.ads.interactivemedia.v3.api.ImaSdkFactory;
 import com.google.ads.interactivemedia.v3.api.ImaSdkSettings;
-import com.google.ads.interactivemedia.v3.samples.videoplayerapp.truex.PlaybackHandler;
-import com.google.ads.interactivemedia.v3.samples.videoplayerapp.truex.PopupCallback;
-import com.google.ads.interactivemedia.v3.samples.videoplayerapp.truex.TruexAdManager;
+import com.truex.adrenderer.IEventEmitter;
+import com.truex.adrenderer.TruexAdEvent;
+import com.truex.adrenderer.TruexAdOptions;
+import com.truex.adrenderer.TruexAdRenderer;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Map;
+
 /** Ads logic for handling the IMA SDK integration code and events. */
-public class VideoPlayerController implements PlaybackHandler {
+public class VideoPlayerController {
 
   /** Log interface, so we can output the log commands to the UI or similar. */
   public interface Logger {
     void log(String logMessage);
   }
-
-  private TruexAdManager truexAdManager;
 
   // Container with references to video player and ad UI ViewGroup.
   private AdDisplayContainer adDisplayContainer;
@@ -82,6 +82,9 @@ public class VideoPlayerController implements PlaybackHandler {
 
   private PopupCallback popupCallback;
 
+  private TruexAdRenderer truexAdRenderer;
+  private Boolean truexCredit;
+
   // Inner class implementation of AdsLoader.AdsLoaderListener.
   private class AdsLoadedListener implements AdsLoader.AdsLoadedListener {
     /** An event raised when ads are successfully loaded from the ad server via AdsLoader. */
@@ -98,6 +101,7 @@ public class VideoPlayerController implements PlaybackHandler {
             @Override
             public void onAdError(AdErrorEvent adErrorEvent) {
               log("Ad Error: " + adErrorEvent.getError().getMessage());
+              cleanupAds();
               resumeContent();
             }
           });
@@ -183,19 +187,20 @@ public class VideoPlayerController implements PlaybackHandler {
       String language,
       ViewGroup companionViewGroup,
       Logger log,
-      PopupCallback callback) {
+      PopupCallback callback,
+      Boolean isDebug) {
     this.videoPlayerWithAdPlayback = videoPlayerWithAdPlayback;
     this.playButton = playButton;
     this.videoContainer = videoContainer;
-    isAdPlaying = false;
     this.companionViewGroup = companionViewGroup;
     this.log = log;
     this.popupCallback = callback;
+    isAdPlaying = false;
 
     // Create an AdsLoader and optionally set the language.
     sdkFactory = ImaSdkFactory.getInstance();
     ImaSdkSettings imaSdkSettings = sdkFactory.createImaSdkSettings();
-    imaSdkSettings.setDebugMode(true);
+    imaSdkSettings.setDebugMode(isDebug);
     imaSdkSettings.setLanguage(language);
 
     adDisplayContainer =
@@ -324,38 +329,73 @@ public class VideoPlayerController implements PlaybackHandler {
   }
 
   private void playInteractiveAd(String vastUrl) {
-    truexAdManager = new TruexAdManager(videoPlayerWithAdPlayback.getContext(), this);
+    truexCredit = false;
+    truexAdRenderer = new TruexAdRenderer(videoPlayerWithAdPlayback.getContext());
 
-    truexAdManager.startAd((ViewGroup)videoContainer, vastUrl);
+    for (TruexAdEvent event : TruexAdEvent.values()) {
+      truexAdRenderer.addEventListener(event, onTruexAdEvent);
+    }
+
+    TruexAdOptions options = new TruexAdOptions();
+    truexAdRenderer.init(vastUrl, options, () -> { truexAdRenderer.start((ViewGroup) videoContainer); });
+
     getVideoAdPlayerView().setVisibility(View.GONE);
+  }
+
+  private IEventEmitter.IEventHandler onTruexAdEvent = (TruexAdEvent event, Map<String, ?> data) -> {
+    Log.i("onTruexAdEvent", event.toString());
+    switch (event) {
+      case AD_COMPLETED:
+      case AD_ERROR:
+      case NO_ADS_AVAILABLE:
+        onTruexAdCompleted();
+        break;
+      case AD_FREE_POD:
+        truexCredit = true;
+        break;
+      case POPUP_WEBSITE:
+        String url = (String)data.get("url");
+        popupCallback.onPopup(url);
+        break;
+      case AD_FETCH_COMPLETED:
+      case AD_STARTED:
+      case USER_CANCEL:
+      case OPT_IN:
+      case OPT_OUT:
+      case SKIP_CARD_SHOWN:
+      default:
+        break;
+    }
+  };
+
+  private void onTruexAdCompleted(){
+    if (truexCredit) {
+      // The user received true[ATTENTION] credit
+      // Resume the content stream (and skip any linear ads)
+      resumeStream();
+    } else {
+      // The user did not receive credit
+      // Continue the content stream and display linear ads
+      displayRegularAds();
+    }
   }
 
   private View getVideoAdPlayerView() {
     return videoContainer.findViewById(R.id.videoPlayerWithAdPlayback);
   }
 
-  @Override
   public void resumeStream() {
-    adsManager.resume();
-    adsManager.discardAdBreak();
+    if (adsManager != null) {
+      adsManager.discardAdBreak();
+      adsManager.resume();
+    }
   }
 
-  @Override
-  public void closeStream() {
-    videoPlayerWithAdPlayback.getVideoAdPlayer().release();
-  }
-
-  @Override
   public void displayRegularAds() {
     if (adsManager != null) {
       adsManager.skip();
       adsManager.resume();
     }
-  }
-
-  @Override
-  public void handlePopup(String url) {
-    popupCallback.onPopup(url);
   }
 
   /**
@@ -365,9 +405,7 @@ public class VideoPlayerController implements PlaybackHandler {
   public void pause() {
     videoPlayerWithAdPlayback.savePosition();
     if (adsManager != null && videoPlayerWithAdPlayback.getIsAdDisplayed()) {
-      if (truexAdManager != null) {
-        truexAdManager.onPause();
-      }
+      if (truexAdRenderer != null) truexAdRenderer.pause();
       adsManager.pause();
     } else {
       videoPlayerWithAdPlayback.pause();
@@ -382,9 +420,7 @@ public class VideoPlayerController implements PlaybackHandler {
     videoPlayerWithAdPlayback.restorePosition();
     if (adsManager != null && videoPlayerWithAdPlayback.getIsAdDisplayed()) {
       adsManager.resume();
-      if (truexAdManager != null) {
-        truexAdManager.onResume();
-      }
+      if (truexAdRenderer != null) truexAdRenderer.resume();
     } else {
       videoPlayerWithAdPlayback.play();
     }
@@ -400,9 +436,7 @@ public class VideoPlayerController implements PlaybackHandler {
       adsManager = null;
     }
 
-    if (truexAdManager != null) {
-      truexAdManager.onDestroy();
-    }
+    if (truexAdRenderer != null) truexAdRenderer.destroy();
   }
 
   /** Seeks to time in content video in seconds. */
