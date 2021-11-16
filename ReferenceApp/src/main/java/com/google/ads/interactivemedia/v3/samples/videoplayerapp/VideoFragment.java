@@ -17,6 +17,11 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.fragment.app.Fragment;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+
 /** The main fragment for displaying video content. */
 public class VideoFragment extends Fragment {
 
@@ -24,32 +29,36 @@ public class VideoFragment extends Fragment {
   private VideoItem videoItem;
   private TextView videoTitle;
   private ScrollView videoExampleLayout;
-  private OnVideoFragmentViewCreatedListener viewCreatedCallback;
   private final Boolean debugEnabled = true;
 
-  /** Listener called when the fragment's onCreateView is fired. */
-  public interface OnVideoFragmentViewCreatedListener {
-    public void onVideoFragmentViewCreated();
-  }
-
   @Override
-  public View onCreateView(
-      LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+  public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     View rootView = inflater.inflate(R.layout.fragment_video, container, false);
-    if (viewCreatedCallback != null) {
-      viewCreatedCallback.onVideoFragmentViewCreated();
-    }
     return rootView;
   }
 
   @Override
   public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
     super.onViewCreated(view, savedInstanceState);
-    initUi();
+    try {
+      initUi();
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
   }
 
-  public void loadVideo(VideoItem videoItem) {
-    this.videoItem = videoItem;
+  public void loadVideo() throws IOException {
+    VideoItem video = new VideoItem(
+            "https://storage.googleapis.com/gvabox/media/samples/stock.mp4",
+            "Truex vmap",
+            "url",
+            R.drawable.app_icon,
+            true,
+            getRawFileContents(R.raw.truex_vmap)
+    );
+
+    this.videoItem = video;
+
     if (videoPlayerController == null) {
       return;
     }
@@ -60,7 +69,7 @@ public class VideoFragment extends Fragment {
     videoTitle.setText(videoItem.getTitle());
   }
 
-  private void initUi() {
+  private void initUi() throws IOException {
     View rootView = getView();
     VideoPlayerWithAdPlayback videoPlayerWithAdPlayback =
         rootView.findViewById(R.id.videoPlayerWithAdPlayback);
@@ -117,29 +126,7 @@ public class VideoFragment extends Fragment {
             },
             debugEnabled);
 
-    // If we've already selected a video, load it now.
-    if (videoItem != null) {
-      loadVideo(videoItem);
-    }
-  }
-
-  /** Shows or hides all non-video UI elements to make the video as large as possible. */
-  public void makeFullscreen(boolean isFullscreen) {
-    for (int i = 0; i < videoExampleLayout.getChildCount(); i++) {
-      View view = videoExampleLayout.getChildAt(i);
-      // If it's not the video element, hide or show it, depending on fullscreen status.
-      if (view.getId() != R.id.videoContainer) {
-        if (isFullscreen) {
-          view.setVisibility(View.GONE);
-        } else {
-          view.setVisibility(View.VISIBLE);
-        }
-      }
-    }
-  }
-
-  public VideoPlayerController getVideoPlayerController() {
-    return videoPlayerController;
+    loadVideo();
   }
 
   @Override
@@ -167,7 +154,24 @@ public class VideoFragment extends Fragment {
     super.onDestroy();
   }
 
-  public boolean isVmap() {
-    return videoItem.getIsVmap();
+  private String getRawFileContents(int resourceId) throws IOException {
+    InputStream vastContentStream = getContext().getResources().openRawResource(resourceId);
+
+    StringBuilder stringBuilder = new StringBuilder();
+    BufferedReader reader = null;
+    try {
+      reader = new BufferedReader(new InputStreamReader(vastContentStream));
+
+      String line;
+      while ((line = reader.readLine()) != null) {
+        stringBuilder.append(line);
+      }
+    } finally {
+      if (reader != null) {
+        reader.close();
+      }
+    }
+
+    return stringBuilder.toString();
   }
 }
