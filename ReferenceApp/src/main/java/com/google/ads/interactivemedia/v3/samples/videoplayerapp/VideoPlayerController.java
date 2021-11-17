@@ -77,11 +77,9 @@ public class VideoPlayerController {
   private Logger log;
 
   private double playAdsAfterTime = -1;
-
   private boolean videoStarted;
 
   private PopupCallback popupCallback;
-
   private TruexAdRenderer truexAdRenderer;
   private Boolean truexCredit;
 
@@ -128,7 +126,7 @@ public class VideoPlayerController {
                   break;
                 case STARTED:
                   Ad ad = adEvent.getAd();
-                  if (ad.getAdId().contains("truex")) {
+                  if (ad.getAdSystem().contains("trueX")) {
                     adsManager.pause();
                     String params = ad.getTraffickingParameters();
 
@@ -137,7 +135,7 @@ public class VideoPlayerController {
                       String url = json.getString("vast_config_url");
                       playInteractiveAd(url);
                     } catch (JSONException e) {
-                      e.printStackTrace();
+                      throw new RuntimeException(e);
                     }
                   } else {
                     getVideoAdPlayerView().setVisibility(View.VISIBLE);
@@ -329,13 +327,13 @@ public class VideoPlayerController {
     }
 
     TruexAdOptions options = new TruexAdOptions();
-    truexAdRenderer.init(vastUrl, options, () -> { truexAdRenderer.start((ViewGroup) videoContainer); });
+    truexAdRenderer.init(vastUrl, options, () -> truexAdRenderer.start((ViewGroup) videoContainer));
 
     getVideoAdPlayerView().setVisibility(View.GONE);
   }
 
   private IEventEmitter.IEventHandler onTruexAdEvent = (TruexAdEvent event, Map<String, ?> data) -> {
-    Log.i("onTruexAdEvent", event.toString());
+    log("onTruexAdEvent: " + event.toString());
     switch (event) {
       case AD_COMPLETED:
       case AD_ERROR:

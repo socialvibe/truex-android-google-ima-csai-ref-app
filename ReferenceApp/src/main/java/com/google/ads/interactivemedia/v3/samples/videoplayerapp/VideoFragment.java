@@ -42,7 +42,7 @@ public class VideoFragment extends Fragment {
     try {
       initUi();
     } catch (IOException e) {
-      e.printStackTrace();
+      throw new RuntimeException(e);
     }
   }
 
