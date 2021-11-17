@@ -25,9 +25,7 @@ Add the TAR dependency to your project
 The following steps are a guideline for the TAR integration.  This assumes you have setup the TAR dependency above to access the renderer.
 * The key IMA implementation logic happens in the VideoPlayerController, starting particularly in the AdsLoadedListener class
 * The various AdEventTypes effectively control the player and ad playback through the adsManager.
-* There exists a case where the user chooses not to watch a true[X] ad and needs to fallback to the regular ads.  There is special handling for this.
-** In this case, `displayRegularAds` gets called, which will skip the true[X] placeholder ad.  However there is an undesirable UX flicker when doing this.
-** To get around this, the ads container is hidden before the interactive ad is shown, and it is only visible again when there is ad content to be played, primarily driven by `CONTENT_RESUME_REQUESTED` 
+* There exists a case where the user chooses not to watch a true[X] ad and needs to fallback to the regular ads.  There is special handling for this. In this case, `displayRegularAds` gets called, which will skip the true[X] placeholder ad.  However there is an undesirable UX flicker when doing this.  To get around this, the ads container is hidden before the interactive ad is shown, and it is only visible again when there is ad content to be played, primarily driven by `CONTENT_RESUME_REQUESTED` 
 * The true[X] implementation the same as other integrations. Reference the `truexAdRenderer` object and the event listener `onTruexAdEvent`
 
 ## Setup
