@@ -259,7 +259,8 @@ public class VideoPlayerController {
 
   /** Request and subsequently play video ads from the ad server. */
   public void requestAndPlayAds(double playAdsAfterTime) {
-    if (currentAdTagUrl == null || currentAdTagUrl == "") {
+    if ((currentAdTagUrl == null || currentAdTagUrl == "") &&
+          (currentAdTagResponse) == null || currentAdTagResponse == "") {
       log("No VAST ad tag URL specified");
       resumeContent();
       return;

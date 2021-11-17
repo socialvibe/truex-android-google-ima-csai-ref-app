@@ -26,7 +26,6 @@ import java.io.InputStreamReader;
 public class VideoFragment extends Fragment {
 
   private VideoPlayerController videoPlayerController;
-  private VideoItem videoItem;
   private TextView videoTitle;
   private ScrollView videoExampleLayout;
   private final Boolean debugEnabled = true;
@@ -48,25 +47,14 @@ public class VideoFragment extends Fragment {
   }
 
   public void loadVideo() throws IOException {
-    VideoItem video = new VideoItem(
-            "https://storage.googleapis.com/gvabox/media/samples/stock.mp4",
-            "Truex vmap",
-            "url",
-            R.drawable.app_icon,
-            true,
-            getRawFileContents(R.raw.truex_vmap)
-    );
-
-    this.videoItem = video;
-
     if (videoPlayerController == null) {
       return;
     }
 
-    videoPlayerController.setContentVideo(videoItem.getVideoUrl());
-    videoPlayerController.setAdTagUrl(videoItem.getAdTagUrl());
-    videoPlayerController.setAdTagResponse(videoItem.getAdTagResponse());
-    videoTitle.setText(videoItem.getTitle());
+    videoPlayerController.setContentVideo("https://ctv.truex.com/assets/reference-app-stream-no-ads-720p.mp4");
+//    videoPlayerController.setAdTagUrl("https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/ad_rule_samples&ciu_szs=300x250&ad_rule=1&impl=s&gdfp_req=1&env=vp&output=vmap&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ar%3Dpremidpost&cmsid=496&vid=short_onecue&correlator=");
+    videoPlayerController.setAdTagResponse(getRawFileContents(R.raw.truex_vmap));
+    videoTitle.setText("Test Video");
   }
 
   private void initUi() throws IOException {
