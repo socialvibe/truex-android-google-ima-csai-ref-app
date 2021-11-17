@@ -249,10 +249,6 @@ public class VideoPlayerController {
     currentAdTagUrl = adTagUrl;
   }
 
-  public String getAdTagUrl() {
-    return currentAdTagUrl;
-  }
-
   public void setAdTagResponse(String adTagResponse) {
     currentAdTagResponse = adTagResponse;
   }
@@ -279,7 +275,6 @@ public class VideoPlayerController {
     } else {
       request.setAdTagUrl(currentAdTagUrl);
     }
-
 
     request.setContentProgressProvider(videoPlayerWithAdPlayback.getContentProgressProvider());
 
@@ -323,10 +318,6 @@ public class VideoPlayerController {
   public void setContentVideo(String videoPath) {
     videoPlayerWithAdPlayback.setContentVideoPath(videoPath);
     contentVideoUrl = videoPath;
-  }
-
-  public String getContentVideoUrl() {
-    return contentVideoUrl;
   }
 
   private void playInteractiveAd(String vastUrl) {
