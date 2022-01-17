@@ -3,9 +3,12 @@
 package com.google.ads.interactivemedia.v3.samples.videoplayerapp;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+
+import com.google.ads.interactivemedia.v3.api.Ad;
 import com.google.ads.interactivemedia.v3.api.AdDisplayContainer;
 import com.google.ads.interactivemedia.v3.api.AdErrorEvent;
 import com.google.ads.interactivemedia.v3.api.AdEvent;
@@ -16,6 +19,15 @@ import com.google.ads.interactivemedia.v3.api.AdsRenderingSettings;
 import com.google.ads.interactivemedia.v3.api.AdsRequest;
 import com.google.ads.interactivemedia.v3.api.ImaSdkFactory;
 import com.google.ads.interactivemedia.v3.api.ImaSdkSettings;
+import com.truex.adrenderer.IEventEmitter;
+import com.truex.adrenderer.TruexAdEvent;
+import com.truex.adrenderer.TruexAdOptions;
+import com.truex.adrenderer.TruexAdRenderer;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.Map;
 
 /** Ads logic for handling the IMA SDK integration code and events. */
 public class VideoPlayerController {
@@ -46,6 +58,8 @@ public class VideoPlayerController {
   // VAST ad tag URL to use when requesting ads during video playback.
   private String currentAdTagUrl;
 
+  private String currentAdTagResponse;
+
   // URL of content video.
   private String contentVideoUrl;
 
@@ -57,14 +71,17 @@ public class VideoPlayerController {
   private boolean isAdPlaying;
 
   // View that handles taps to toggle ad pause/resume during video playback.
-  private View playPauseToggle;
+  private View videoContainer;
 
   // View that we can write log messages to, to display in the UI.
   private Logger log;
 
   private double playAdsAfterTime = -1;
-
   private boolean videoStarted;
+
+  private PopupCallback popupCallback;
+  private TruexAdRenderer truexAdRenderer;
+  private Boolean truexCredit;
 
   // Inner class implementation of AdsLoader.AdsLoaderListener.
   private class AdsLoadedListener implements AdsLoader.AdsLoadedListener {
@@ -82,6 +99,7 @@ public class VideoPlayerController {
             @Override
             public void onAdError(AdErrorEvent adErrorEvent) {
               log("Ad Error: " + adErrorEvent.getError().getMessage());
+              cleanupAds();
               resumeContent();
             }
           });
@@ -102,7 +120,26 @@ public class VideoPlayerController {
                   // played. AdsManager.start() begins ad playback. This method is
                   // ignored for VMAP or ad rules playlists, as the SDK will
                   // automatically start executing the playlist.
+
                   adsManager.start();
+
+                  break;
+                case STARTED:
+                  Ad ad = adEvent.getAd();
+                  if (ad.getAdSystem().contains("trueX")) {
+                    adsManager.pause();
+                    String params = ad.getTraffickingParameters();
+
+                    try {
+                      JSONObject json = new JSONObject(params);
+                      String url = json.getString("vast_config_url");
+                      playInteractiveAd(url);
+                    } catch (JSONException e) {
+                      throw new RuntimeException(e);
+                    }
+                  } else {
+                    getVideoAdPlayerView().setVisibility(View.VISIBLE);
+                  }
                   break;
                 case CONTENT_PAUSE_REQUESTED:
                   // AdEventType.CONTENT_PAUSE_REQUESTED is fired immediately before
@@ -123,10 +160,7 @@ public class VideoPlayerController {
                   videoPlayerWithAdPlayback.disableControls();
                   break;
                 case ALL_ADS_COMPLETED:
-                  if (adsManager != null) {
-                    adsManager.destroy();
-                    adsManager = null;
-                  }
+                  cleanupAds();
                   adsLoader.release();
                   break;
                 default:
@@ -147,20 +181,24 @@ public class VideoPlayerController {
       Context context,
       VideoPlayerWithAdPlayback videoPlayerWithAdPlayback,
       View playButton,
-      View playPauseToggle,
+      View videoContainer,
       String language,
       ViewGroup companionViewGroup,
-      Logger log) {
+      Logger log,
+      PopupCallback callback,
+      Boolean isDebug) {
     this.videoPlayerWithAdPlayback = videoPlayerWithAdPlayback;
     this.playButton = playButton;
-    this.playPauseToggle = playPauseToggle;
-    isAdPlaying = false;
+    this.videoContainer = videoContainer;
     this.companionViewGroup = companionViewGroup;
     this.log = log;
+    this.popupCallback = callback;
+    isAdPlaying = false;
 
     // Create an AdsLoader and optionally set the language.
     sdkFactory = ImaSdkFactory.getInstance();
     ImaSdkSettings imaSdkSettings = sdkFactory.createImaSdkSettings();
+    imaSdkSettings.setDebugMode(isDebug);
     imaSdkSettings.setLanguage(language);
 
     adDisplayContainer =
@@ -182,13 +220,7 @@ public class VideoPlayerController {
     adsLoader.addAdsLoadedListener(new VideoPlayerController.AdsLoadedListener());
 
     // When Play is clicked, request ads and hide the button.
-    playButton.setOnClickListener(
-        new View.OnClickListener() {
-          @Override
-          public void onClick(View view) {
-            requestAndPlayAds(-1);
-          }
-        });
+    playButton.setOnClickListener(view -> requestAndPlayAds(-1));
   }
 
   private void log(String message) {
@@ -205,6 +237,7 @@ public class VideoPlayerController {
 
   private void resumeContent() {
     videoPlayerWithAdPlayback.resumeContentAfterAdPlayback();
+    getVideoAdPlayerView().setVisibility(View.VISIBLE);
     isAdPlaying = false;
     removePlayPauseOnAdTouch();
   }
@@ -214,28 +247,33 @@ public class VideoPlayerController {
     currentAdTagUrl = adTagUrl;
   }
 
-  public String getAdTagUrl() {
-    return currentAdTagUrl;
+  public void setAdTagResponse(String adTagResponse) {
+    currentAdTagResponse = adTagResponse;
   }
 
   /** Request and subsequently play video ads from the ad server. */
   public void requestAndPlayAds(double playAdsAfterTime) {
-    if (currentAdTagUrl == null || currentAdTagUrl == "") {
+    if ((currentAdTagUrl == null || currentAdTagUrl == "") &&
+          (currentAdTagResponse) == null || currentAdTagResponse == "") {
       log("No VAST ad tag URL specified");
       resumeContent();
       return;
     }
 
     // Since we're switching to a new video, tell the SDK the previous video is finished.
-    if (adsManager != null) {
-      adsManager.destroy();
-    }
+    cleanupAds();
 
     playButton.setVisibility(View.GONE);
 
     // Create the ads request.
     AdsRequest request = sdkFactory.createAdsRequest();
-    request.setAdTagUrl(currentAdTagUrl);
+
+    if (currentAdTagResponse != null) {
+      request.setAdsResponse(currentAdTagResponse);
+    } else {
+      request.setAdTagUrl(currentAdTagUrl);
+    }
+
     request.setContentProgressProvider(videoPlayerWithAdPlayback.getContentProgressProvider());
 
     this.playAdsAfterTime = playAdsAfterTime;
@@ -248,7 +286,7 @@ public class VideoPlayerController {
   private void setPlayPauseOnAdTouch() {
     // Use AdsManager pause/resume methods instead of the video player pause/resume methods
     // in case the SDK is using a different, SDK-created video player for ad playback.
-    playPauseToggle.setOnTouchListener(
+    videoContainer.setOnTouchListener(
         new View.OnTouchListener() {
           public boolean onTouch(View view, MotionEvent event) {
             // If an ad is playing, touching it will toggle playback.
@@ -268,7 +306,7 @@ public class VideoPlayerController {
 
   /** Remove the play/pause on touch behavior. */
   private void removePlayPauseOnAdTouch() {
-    playPauseToggle.setOnTouchListener(null);
+    videoContainer.setOnTouchListener(null);
   }
 
   /**
@@ -280,8 +318,74 @@ public class VideoPlayerController {
     contentVideoUrl = videoPath;
   }
 
-  public String getContentVideoUrl() {
-    return contentVideoUrl;
+  private void playInteractiveAd(String vastUrl) {
+    truexCredit = false;
+    truexAdRenderer = new TruexAdRenderer(videoPlayerWithAdPlayback.getContext());
+
+    for (TruexAdEvent event : TruexAdEvent.values()) {
+      truexAdRenderer.addEventListener(event, onTruexAdEvent);
+    }
+
+    TruexAdOptions options = new TruexAdOptions();
+    truexAdRenderer.init(vastUrl, options, () -> truexAdRenderer.start((ViewGroup) videoContainer));
+
+    getVideoAdPlayerView().setVisibility(View.GONE);
+  }
+
+  private IEventEmitter.IEventHandler onTruexAdEvent = (TruexAdEvent event, Map<String, ?> data) -> {
+    log("onTruexAdEvent: " + event.toString());
+    switch (event) {
+      case AD_COMPLETED:
+      case AD_ERROR:
+      case NO_ADS_AVAILABLE:
+        onTruexAdCompleted();
+        break;
+      case AD_FREE_POD:
+        truexCredit = true;
+        break;
+      case POPUP_WEBSITE:
+        String url = (String)data.get("url");
+        popupCallback.onPopup(url);
+        break;
+      case AD_FETCH_COMPLETED:
+      case AD_STARTED:
+      case USER_CANCEL:
+      case OPT_IN:
+      case OPT_OUT:
+      case SKIP_CARD_SHOWN:
+      default:
+        break;
+    }
+  };
+
+  private void onTruexAdCompleted(){
+    if (truexCredit) {
+      // The user received true[ATTENTION] credit
+      // Resume the content stream (and skip any linear ads)
+      resumeStream();
+    } else {
+      // The user did not receive credit
+      // Continue the content stream and display linear ads
+      displayRegularAds();
+    }
+  }
+
+  private View getVideoAdPlayerView() {
+    return videoContainer.findViewById(R.id.videoPlayerWithAdPlayback);
+  }
+
+  public void resumeStream() {
+    if (adsManager != null) {
+      adsManager.discardAdBreak();
+      adsManager.resume();
+    }
+  }
+
+  public void displayRegularAds() {
+    if (adsManager != null) {
+      adsManager.skip();
+      adsManager.resume();
+    }
   }
 
   /**
@@ -291,6 +395,7 @@ public class VideoPlayerController {
   public void pause() {
     videoPlayerWithAdPlayback.savePosition();
     if (adsManager != null && videoPlayerWithAdPlayback.getIsAdDisplayed()) {
+      if (truexAdRenderer != null) truexAdRenderer.pause();
       adsManager.pause();
     } else {
       videoPlayerWithAdPlayback.pause();
@@ -305,16 +410,23 @@ public class VideoPlayerController {
     videoPlayerWithAdPlayback.restorePosition();
     if (adsManager != null && videoPlayerWithAdPlayback.getIsAdDisplayed()) {
       adsManager.resume();
+      if (truexAdRenderer != null) truexAdRenderer.resume();
     } else {
       videoPlayerWithAdPlayback.play();
     }
   }
 
   public void destroy() {
+    cleanupAds();
+  }
+
+  private void cleanupAds() {
     if (adsManager != null) {
       adsManager.destroy();
       adsManager = null;
     }
+
+    if (truexAdRenderer != null) truexAdRenderer.destroy();
   }
 
   /** Seeks to time in content video in seconds. */

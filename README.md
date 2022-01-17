@@ -1,8 +1,7 @@
-# true[X] Reference App
+# true[X] Client-Side Google IMA Android Reference App
 
 ## Reference app for Android Mobile TruexAdRenderer integration
-
-This is an Android Mobile application exposing direct calls into `TruexAdRenderer` (also referenced as TAR in the walkthrough and code) instances, enabling functional testing as well as prototyping. The application is set up with a simple activity and the calls in the `MainActivity` should be self-explanatory.  This samples an integration where the ads are handled on the client side, but it can be extended to other ad solutions such as server stitched ads.
+This is an Android Mobile application that builds on top of Google's custom IMA example, https://github.com/googleads/googleads-ima-android (Advanced sample).  This app showcases how to integrate the true[X] library in combination with Google Client Side IMA ads.  The library is also often referenced to as the true[X] Ad Renderer, or TAR.
 
 
 ### Access the true[X] Ad Renderer Library
@@ -23,30 +22,11 @@ Add the TAR dependency to your project
 ```
 
 ## Steps
-The following steps are a guideline for the TAR integration.  This assumes you have setup the TAR dependency above to access the renderer.  The starting/key points referenced in each step can be searched in the code for reference.  EG.  Searching for [2], will direct you to the engagement start.
-
-### [1] - Look for true[X] companions for a given ad (PlayerFragment::playCurrentAds)
-For simplicity, this sample app uses stubbed and parsed ad data (`adbreaks_stub.json`).  But this can be replaced with an ad call and then parsing the ad payload.  The important part here is determining if a given ad, which should be the first ad in a pod, is a true[X] ad.  This can vary depending on how the ads are returned by the server.  But some variations include checking if part of the payload contains a true[X] string, as seen in `isTruexAdUrl()`.
-
-### [2] - Prepare to enter the engagement (PlayerFragment::displayInteractiveAd, TruexAdManager)
-Once as have a valid true[X] ad, first we pause playback (displayInteractiveAd::pauseStream).  Then we initialize TAR by means of the `TruexAdManager`, via `TruexAdManager.startAd()`.  Note the `PlaybackHandler` passed in the constructor, which will be responsible for interfacing with the TAR events later on.  The key line that starts the true[X] Ad Experience is:
-`truexAdRenderer.init(vastUrl, options, () -> { truexAdRenderer.start(viewGroup); });`
-This tells the renderer to initialize and verify it has a valid ad payload, and it fires a callback when it is ready to start.  The host app is responsible for when to start the ad experience, but able to do it immediately, per the example above.  After the renderer has started, it will communicate various events.
-
-### [3] - Ad Events - AD_FREE_POD (TruexAdManager::adFree, TruexAdEvent)
-There are a handful of key ad events that TAR will message to the host app.  The first key event is AD_FREE_POD.  Once a user fulfills the requirements to earn credit for the ad, also called true[ATTENTION], this event is fired, and a flag keeps track of this in the code.  It is important to note that AD_FREE_POD can be acquired before the user exits the engagement, and the host app should wait for a terminating event to proceed.
-
-### [4] - Ad Events - Terminating Events (TruexAdManager::onCompletion, TruexAdEvent)
-There are three ways the renderer can finish:
-
-1. There were no ads available. (`NO_ADS_AVAILABLE`)
-2. The ad had an error. (`AD_ERROR`)
-3. The viewer has completed the engagement. (`AD_COMPLETED`)
-
-In `onCompletion`, note that if the user has gained credit from earlier, we want to skip all the other ad returned in the pod and resume the stream.  Otherwise we need to play the other ads in the pod.  In all three of these cases, the renderer will have removed itself from view.
-
-### [5] - Ad Events - Other (TruexAdManager, TruexAdEvent)
-See the code for other ad events that are fired.  Some events are for any custom purposes if needed, otherwise there is nothing the host app is required to do (eg. AD_STARTED).  The POPUP_WEBSITE event is for handling any user interactions that would prompt a pop up.  It is important to pause/resume the ad renderer based off the user actions to preserve proper states when switching to another app, as shown in the code.
+The following steps are a guideline for the TAR integration.  This assumes you have setup the TAR dependency above to access the renderer.
+* The key IMA implementation logic happens in the VideoPlayerController, starting particularly in the AdsLoadedListener class
+* The various AdEventTypes effectively control the player and ad playback through the adsManager.
+* There exists a case where the user chooses not to watch a true[X] ad and needs to fallback to the regular ads.  There is special handling for this. In this case, `displayRegularAds` gets called, which will skip the true[X] placeholder ad.  However there is an undesirable UX flicker when doing this.  To get around this, the ads container is hidden before the interactive ad is shown, and it is only visible again when there is ad content to be played, primarily driven by `CONTENT_RESUME_REQUESTED` 
+* The true[X] implementation the same as other integrations. Reference the `truexAdRenderer` object and the event listener `onTruexAdEvent`
 
 ## Setup
 

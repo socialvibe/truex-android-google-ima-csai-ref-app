@@ -1,5 +1,7 @@
 package com.google.ads.interactivemedia.v3.samples.videoplayerapp;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -8,52 +10,61 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ScrollView;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.fragment.app.Fragment;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 
 /** The main fragment for displaying video content. */
 public class VideoFragment extends Fragment {
 
   private VideoPlayerController videoPlayerController;
-  private VideoItem videoItem;
   private TextView videoTitle;
   private ScrollView videoExampleLayout;
-  private OnVideoFragmentViewCreatedListener viewCreatedCallback;
-
-  /** Listener called when the fragment's onCreateView is fired. */
-  public interface OnVideoFragmentViewCreatedListener {
-    public void onVideoFragmentViewCreated();
-  }
+  private final Boolean debugEnabled = true;
 
   @Override
-  public View onCreateView(
-      LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+  public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     View rootView = inflater.inflate(R.layout.fragment_video, container, false);
-    initUi(rootView);
-    if (viewCreatedCallback != null) {
-      viewCreatedCallback.onVideoFragmentViewCreated();
-    }
     return rootView;
   }
 
-  public void loadVideo(VideoItem videoItem) {
-    this.videoItem = videoItem;
+  @Override
+  public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+    super.onViewCreated(view, savedInstanceState);
+    try {
+      initUi();
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  public void loadVideo() throws IOException {
     if (videoPlayerController == null) {
       return;
     }
 
-    videoPlayerController.setContentVideo(videoItem.getVideoUrl());
-    videoPlayerController.setAdTagUrl(videoItem.getAdTagUrl());
-    videoTitle.setText(videoItem.getTitle());
+    videoPlayerController.setContentVideo("https://ctv.truex.com/assets/reference-app-stream-no-ads-720p.mp4");
+//    videoPlayerController.setAdTagUrl("https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/ad_rule_samples&ciu_szs=300x250&ad_rule=1&impl=s&gdfp_req=1&env=vp&output=vmap&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ar%3Dpremidpost&cmsid=496&vid=short_onecue&correlator=");
+    videoPlayerController.setAdTagResponse(getRawFileContents(R.raw.truex_vmap));
+    videoTitle.setText("Test Video");
   }
 
-  private void initUi(View rootView) {
+  private void initUi() throws IOException {
+    View rootView = getView();
     VideoPlayerWithAdPlayback videoPlayerWithAdPlayback =
         rootView.findViewById(R.id.videoPlayerWithAdPlayback);
     View playButton = rootView.findViewById(R.id.playButton);
-    View playPauseToggle = rootView.findViewById(R.id.videoContainer);
+    View videoContainer = rootView.findViewById(R.id.videoContainer);
     ViewGroup companionAdSlot = rootView.findViewById(R.id.companionAdSlot);
+
     videoTitle = rootView.findViewById(R.id.video_title);
     videoExampleLayout = rootView.findViewById(R.id.videoExampleLayout);
     videoExampleLayout.setOverScrollMode(View.OVER_SCROLL_ALWAYS);
@@ -69,6 +80,12 @@ public class VideoFragment extends Fragment {
     forceHeight.applyTo(constraintLayout);
 
     final TextView logText = rootView.findViewById(R.id.logText);
+
+    if (debugEnabled) {
+      logText.setVisibility(View.VISIBLE);
+    } else {
+      logText.setVisibility(View.GONE);
+    }
 
     // Provide an implementation of a logger so we can output SDK events to the UI.
     VideoPlayerController.Logger logger =
@@ -87,34 +104,17 @@ public class VideoFragment extends Fragment {
             this.getActivity(),
             videoPlayerWithAdPlayback,
             playButton,
-            playPauseToggle,
+            videoContainer,
             getString(R.string.ad_ui_lang),
             companionAdSlot,
-            logger);
+            logger,
+            (popupUrl) -> {
+                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(popupUrl));
+                startActivity(browserIntent);
+            },
+            debugEnabled);
 
-    // If we've already selected a video, load it now.
-    if (videoItem != null) {
-      loadVideo(videoItem);
-    }
-  }
-
-  /** Shows or hides all non-video UI elements to make the video as large as possible. */
-  public void makeFullscreen(boolean isFullscreen) {
-    for (int i = 0; i < videoExampleLayout.getChildCount(); i++) {
-      View view = videoExampleLayout.getChildAt(i);
-      // If it's not the video element, hide or show it, depending on fullscreen status.
-      if (view.getId() != R.id.videoContainer) {
-        if (isFullscreen) {
-          view.setVisibility(View.GONE);
-        } else {
-          view.setVisibility(View.VISIBLE);
-        }
-      }
-    }
-  }
-
-  public VideoPlayerController getVideoPlayerController() {
-    return videoPlayerController;
+    loadVideo();
   }
 
   @Override
@@ -142,7 +142,24 @@ public class VideoFragment extends Fragment {
     super.onDestroy();
   }
 
-  public boolean isVmap() {
-    return videoItem.getIsVmap();
+  private String getRawFileContents(int resourceId) throws IOException {
+    InputStream vastContentStream = getContext().getResources().openRawResource(resourceId);
+
+    StringBuilder stringBuilder = new StringBuilder();
+    BufferedReader reader = null;
+    try {
+      reader = new BufferedReader(new InputStreamReader(vastContentStream));
+
+      String line;
+      while ((line = reader.readLine()) != null) {
+        stringBuilder.append(line);
+      }
+    } finally {
+      if (reader != null) {
+        reader.close();
+      }
+    }
+
+    return stringBuilder.toString();
   }
 }
