@@ -116,16 +116,6 @@ public class VideoFragment extends Fragment {
 
     playButton.requestFocus();
 
-//    rootView.setOnKeyListener((view, keyCode, keyEvent) -> {
-//      if (keyCode == KeyEvent.KEYCODE_ENTER
-//              || keyCode == KeyEvent.KEYCODE_MEDIA_PLAY
-//              || keyCode == KeyEvent.KEYCODE_DPAD_LEFT) {
-//        videoPlayerController.requestAndPlayAds(-1);
-//        return true; // handled
-//      }
-//      return false;
-//    });
-
     loadVideo();
   }
 
