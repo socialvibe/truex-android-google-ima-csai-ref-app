@@ -13,6 +13,7 @@ import com.google.ads.interactivemedia.v3.api.player.AdMediaInfo;
 import com.google.ads.interactivemedia.v3.api.player.ContentProgressProvider;
 import com.google.ads.interactivemedia.v3.api.player.VideoAdPlayer;
 import com.google.ads.interactivemedia.v3.api.player.VideoProgressUpdate;
+import com.google.ads.interactivemedia.v3.samples.samplevideoplayer.SampleVideoPlayer;
 import com.google.ads.interactivemedia.v3.samples.samplevideoplayer.VideoPlayer;
 
 import java.util.ArrayList;
@@ -24,7 +25,7 @@ import java.util.TimerTask;
 public class VideoPlayerWithAdPlayback extends RelativeLayout {
 
   // The wrapped video player.
-  private VideoPlayer videoPlayer;
+  private SampleVideoPlayer videoPlayer;
 
   // A Timer to help track media updates
   private Timer timer;
@@ -112,7 +113,7 @@ public class VideoPlayerWithAdPlayback extends RelativeLayout {
     contentHasCompleted = false;
     savedAdPosition = 0;
     savedContentPosition = 0;
-    videoPlayer = (VideoPlayer) this.getRootView().findViewById(R.id.videoPlayer);
+    videoPlayer = (SampleVideoPlayer) this.getRootView().findViewById(R.id.videoPlayer);
     adUiContainer = (ViewGroup) this.getRootView().findViewById(R.id.adUiContainer);
 
     // Define VideoAdPlayer connector.
@@ -311,6 +312,7 @@ public class VideoPlayerWithAdPlayback extends RelativeLayout {
     videoPlayer.disablePlaybackControls();
     savePosition();
     videoPlayer.stopPlayback();
+    //videoPlayer.setVisibility(INVISIBLE);
   }
 
   /**
@@ -322,6 +324,7 @@ public class VideoPlayerWithAdPlayback extends RelativeLayout {
       Log.w("ImaExample", "No content URL specified.");
       return;
     }
+    //videoPlayer.setVisibility(VISIBLE);
     isAdDisplayed = false;
     videoPlayer.setVideoPath(contentVideoUrl);
     videoPlayer.enablePlaybackControls(/* timeout= */ 3000);
