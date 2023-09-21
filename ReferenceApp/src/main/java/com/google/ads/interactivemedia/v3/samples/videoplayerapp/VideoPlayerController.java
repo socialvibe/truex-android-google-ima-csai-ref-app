@@ -19,7 +19,6 @@ import com.google.ads.interactivemedia.v3.api.AdsRenderingSettings;
 import com.google.ads.interactivemedia.v3.api.AdsRequest;
 import com.google.ads.interactivemedia.v3.api.ImaSdkFactory;
 import com.google.ads.interactivemedia.v3.api.ImaSdkSettings;
-import com.truex.adrenderer.IEventEmitter;
 import com.truex.adrenderer.TruexAdEvent;
 import com.truex.adrenderer.TruexAdOptions;
 import com.truex.adrenderer.TruexAdRenderer;
@@ -335,17 +334,16 @@ public class VideoPlayerController {
     truexCredit = false;
     truexAdRenderer = new TruexAdRenderer(videoPlayerWithAdPlayback.getContext());
 
-    for (TruexAdEvent event : TruexAdEvent.values()) {
-      truexAdRenderer.addEventListener(event, onTruexAdEvent);
-    }
+    truexAdRenderer.addEventListener(null, this::onTruexAdEvent); // listen to all events.
 
     TruexAdOptions options = new TruexAdOptions();
-    truexAdRenderer.init(vastUrl, options, () -> truexAdRenderer.start((ViewGroup) videoContainer));
+    truexAdRenderer.init(vastUrl, options);
+    truexAdRenderer.start((ViewGroup) videoContainer);
 
     getVideoAdPlayerView().setVisibility(View.GONE);
   }
 
-  private IEventEmitter.IEventHandler onTruexAdEvent = (TruexAdEvent event, Map<String, ?> data) -> {
+  private void onTruexAdEvent(TruexAdEvent event, Map<String, ?> data) {
     log("onTruexAdEvent: " + event.toString());
     switch (event) {
       case AD_COMPLETED:
@@ -439,7 +437,7 @@ public class VideoPlayerController {
       adsManager = null;
     }
 
-    if (truexAdRenderer != null) truexAdRenderer.destroy();
+    if (truexAdRenderer != null) truexAdRenderer.stop();
   }
 
   /** Seeks to time in content video in seconds. */

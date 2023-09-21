@@ -1,6 +1,7 @@
 package com.google.ads.interactivemedia.v3.samples.videoplayerapp;
 
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
@@ -53,7 +54,12 @@ public class VideoFragment extends Fragment {
 
     videoPlayerController.setContentVideo("https://ctv.truex.com/assets/reference-app-stream-no-ads-720p.mp4");
 //    videoPlayerController.setAdTagUrl("https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/ad_rule_samples&ciu_szs=300x250&ad_rule=1&impl=s&gdfp_req=1&env=vp&output=vmap&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ar%3Dpremidpost&cmsid=496&vid=short_onecue&correlator=");
-    videoPlayerController.setAdTagResponse(getRawFileContents(R.raw.truex_vmap));
+
+    // Ensure we refer to CTV vs mobile ads.
+    boolean isTV = getActivity().getPackageManager().hasSystemFeature(PackageManager.FEATURE_LEANBACK);
+    int vmapXmlResource = isTV ? R.raw.ctv_truex_vmap : R.raw.mobile_truex_vmap;
+    videoPlayerController.setAdTagResponse(getRawFileContents(vmapXmlResource));
+
     videoTitle.setText("Test Video");
   }
 
