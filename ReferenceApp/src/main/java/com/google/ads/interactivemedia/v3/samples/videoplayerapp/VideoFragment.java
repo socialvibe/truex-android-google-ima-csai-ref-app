@@ -11,13 +11,9 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ScrollView;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.fragment.app.Fragment;
 
 import java.io.BufferedReader;
@@ -29,7 +25,6 @@ import java.io.InputStreamReader;
 public class VideoFragment extends Fragment {
 
   private VideoPlayerController videoPlayerController;
-  private ScrollView videoExampleLayout;
 
   @Override
   public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -74,18 +69,10 @@ public class VideoFragment extends Fragment {
     VideoPlayerWithAdPlayback videoPlayerWithAdPlayback =
         rootView.findViewById(R.id.videoPlayerWithAdPlayback);
     View videoContainer = rootView.findViewById(R.id.videoContainer);
-    ViewGroup companionAdSlot = rootView.findViewById(R.id.companionAdSlot);
-
-    videoExampleLayout = rootView.findViewById(R.id.videoExampleLayout);
 
     // Make the dummyScrollContent height the size of the screen height.
     DisplayMetrics displayMetrics = new DisplayMetrics();
     getActivity().getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
-    ConstraintLayout constraintLayout = rootView.findViewById(R.id.constraintLayout);
-    ConstraintSet forceHeight = new ConstraintSet();
-    forceHeight.clone(constraintLayout);
-//    forceHeight.constrainHeight(R.id.dummyScrollContent, displayMetrics.heightPixels);
-    forceHeight.applyTo(constraintLayout);
 
     // Provide an implementation of a logger so we can output SDK events to the UI.
     VideoPlayerController.Logger logger =
@@ -102,7 +89,6 @@ public class VideoFragment extends Fragment {
             videoPlayerWithAdPlayback,
             videoContainer,
             getString(R.string.ad_ui_lang),
-            companionAdSlot,
             logger,
             (popupUrl) -> {
                 Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(popupUrl));

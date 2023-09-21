@@ -1,64 +1,25 @@
-<ScrollView
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/videoExampleLayout"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/videoContainer"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#000000"
     android:orientation="vertical">
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/constraintLayout"
+
+    <com.google.ads.interactivemedia.v3.samples.videoplayerapp.VideoPlayerWithAdPlayback
+        android:id="@+id/videoPlayerWithAdPlayback"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
-        <LinearLayout
-            android:id="@+id/companionAdSlot"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:background="#DDDDDD"
-            android:gravity="center"
-            android:orientation="vertical"
-            android:textAlignment="center"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toStartOf="parent">
-            <TextView
-                android:id="@+id/companionPlaceholder"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:gravity="center_horizontal"
-                android:text="@string/companionPlaceholder"
-                android:textAlignment="center"
-                android:textSize="@dimen/font_size"/>
-        </LinearLayout>
+        android:layout_height="wrap_content">
 
-        <LinearLayout
-            android:id="@+id/videoContainer"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:background="#000000"
-            android:orientation="vertical"
-            app:layout_constraintTop_toBottomOf="@id/companionAdSlot"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintDimensionRatio="16:9">
+        <com.google.ads.interactivemedia.v3.samples.samplevideoplayer.SampleVideoPlayer
+            android:id="@+id/videoPlayer"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_centerHorizontal="true" />
 
-            <com.google.ads.interactivemedia.v3.samples.videoplayerapp.VideoPlayerWithAdPlayback
-                android:id="@+id/videoPlayerWithAdPlayback"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-                <com.google.ads.interactivemedia.v3.samples.samplevideoplayer.SampleVideoPlayer
-                    android:id="@+id/videoPlayer"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_centerHorizontal="true"/>
-                <FrameLayout
-                    android:id="@+id/adUiContainer"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"/>
-            </com.google.ads.interactivemedia.v3.samples.videoplayerapp.VideoPlayerWithAdPlayback>
-        </LinearLayout>
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
-</ScrollView>
-
+        <FrameLayout
+            android:id="@+id/adUiContainer"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </com.google.ads.interactivemedia.v3.samples.videoplayerapp.VideoPlayerWithAdPlayback>
+</LinearLayout>

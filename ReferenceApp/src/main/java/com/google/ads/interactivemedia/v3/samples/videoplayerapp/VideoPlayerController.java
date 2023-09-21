@@ -58,9 +58,6 @@ public class VideoPlayerController {
   // URL of content video.
   private String contentVideoUrl;
 
-  // ViewGroup to render an associated companion ad into.
-  private ViewGroup companionViewGroup;
-
   // Tracks if the SDK is playing an ad, since the SDK might not necessarily use the video
   // player provided to play the video ad.
   private boolean isAdPlaying;
@@ -177,12 +174,10 @@ public class VideoPlayerController {
       VideoPlayerWithAdPlayback videoPlayerWithAdPlayback,
       View videoContainer,
       String language,
-      ViewGroup companionViewGroup,
       Logger log,
       PopupCallback callback) {
     this.videoPlayerWithAdPlayback = videoPlayerWithAdPlayback;
     this.videoContainer = videoContainer;
-    this.companionViewGroup = companionViewGroup;
     this.log = log;
     this.popupCallback = callback;
     isAdPlaying = false;
