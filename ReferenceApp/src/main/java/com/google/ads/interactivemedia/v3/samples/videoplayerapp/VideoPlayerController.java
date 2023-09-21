@@ -3,7 +3,7 @@
 package com.google.ads.interactivemedia.v3.samples.videoplayerapp;
 
 import android.content.Context;
-import android.util.Log;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -217,10 +217,22 @@ public class VideoPlayerController {
           }
         });
 
-    adsLoader.addAdsLoadedListener(new VideoPlayerController.AdsLoadedListener());
+    adsLoader.addAdsLoadedListener(new AdsLoadedListener());
 
     // When Play is clicked, request ads and hide the button.
-    playButton.setOnClickListener(view -> requestAndPlayAds(-1));
+    playButton.setOnClickListener(view -> {
+      requestAndPlayAds(-1);
+    });
+
+    playButton.setOnKeyListener((view, keyCode, keyEvent) -> {
+      if (keyCode == KeyEvent.KEYCODE_ENTER
+          || keyCode == KeyEvent.KEYCODE_DPAD_CENTER
+          || keyCode == KeyEvent.KEYCODE_SPACE) {
+        requestAndPlayAds(-1);
+        return true; // handled
+      }
+      return false;
+    });
   }
 
   private void log(String message) {

@@ -28,7 +28,7 @@ public class VideoFragment extends Fragment {
   private VideoPlayerController videoPlayerController;
   private TextView videoTitle;
   private ScrollView videoExampleLayout;
-  private final Boolean debugEnabled = true;
+  private final Boolean debugEnabled = false; // for now
 
   @Override
   public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -114,8 +114,22 @@ public class VideoFragment extends Fragment {
             },
             debugEnabled);
 
+    playButton.requestFocus();
+
+//    rootView.setOnKeyListener((view, keyCode, keyEvent) -> {
+//      if (keyCode == KeyEvent.KEYCODE_ENTER
+//              || keyCode == KeyEvent.KEYCODE_MEDIA_PLAY
+//              || keyCode == KeyEvent.KEYCODE_DPAD_LEFT) {
+//        videoPlayerController.requestAndPlayAds(-1);
+//        return true; // handled
+//      }
+//      return false;
+//    });
+
     loadVideo();
   }
+
+
 
   @Override
   public void onPause() {
