@@ -3,7 +3,6 @@
 package com.google.ads.interactivemedia.v3.samples.videoplayerapp;
 
 import android.content.Context;
-import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -316,7 +315,9 @@ public class VideoPlayerController {
     truexAdRenderer.init(vastUrl, options);
     truexAdRenderer.start((ViewGroup) videoContainer);
 
-    getVideoAdPlayerView().setVisibility(View.GONE);
+    View playerView = getVideoAdPlayerView();
+    playerView.setVisibility(View.GONE);
+    //playerView.setVisibility(View.INVISIBLE);
   }
 
   private void onTruexAdEvent(TruexAdEvent event, Map<String, ?> data) {
