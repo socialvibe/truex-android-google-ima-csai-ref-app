@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -27,9 +29,7 @@ import java.io.InputStreamReader;
 public class VideoFragment extends Fragment {
 
   private VideoPlayerController videoPlayerController;
-  private TextView videoTitle;
   private ScrollView videoExampleLayout;
-  private final Boolean debugEnabled = false; // for now
 
   @Override
   public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -60,21 +60,23 @@ public class VideoFragment extends Fragment {
     int vmapXmlResource = isTV ? R.raw.ctv_truex_vmap : R.raw.mobile_truex_vmap;
     videoPlayerController.setAdTagResponse(getRawFileContents(vmapXmlResource));
 
-    videoTitle.setText("Test Video");
+    final Handler handler = new Handler(Looper.getMainLooper());
+    handler.postDelayed(new Runnable() {
+      @Override
+      public void run() {
+        videoPlayerController.requestAndPlayAds(-1);
+      }
+    }, 100);
   }
 
   private void initUi() throws IOException {
     View rootView = getView();
     VideoPlayerWithAdPlayback videoPlayerWithAdPlayback =
         rootView.findViewById(R.id.videoPlayerWithAdPlayback);
-    View playButton = rootView.findViewById(R.id.playButton);
     View videoContainer = rootView.findViewById(R.id.videoContainer);
     ViewGroup companionAdSlot = rootView.findViewById(R.id.companionAdSlot);
 
-    videoTitle = rootView.findViewById(R.id.video_title);
     videoExampleLayout = rootView.findViewById(R.id.videoExampleLayout);
-    videoExampleLayout.setOverScrollMode(View.OVER_SCROLL_ALWAYS);
-    videoExampleLayout.setSmoothScrollingEnabled(true);
 
     // Make the dummyScrollContent height the size of the screen height.
     DisplayMetrics displayMetrics = new DisplayMetrics();
@@ -82,16 +84,8 @@ public class VideoFragment extends Fragment {
     ConstraintLayout constraintLayout = rootView.findViewById(R.id.constraintLayout);
     ConstraintSet forceHeight = new ConstraintSet();
     forceHeight.clone(constraintLayout);
-    forceHeight.constrainHeight(R.id.dummyScrollContent, displayMetrics.heightPixels);
+//    forceHeight.constrainHeight(R.id.dummyScrollContent, displayMetrics.heightPixels);
     forceHeight.applyTo(constraintLayout);
-
-    final TextView logText = rootView.findViewById(R.id.logText);
-
-    if (debugEnabled) {
-      logText.setVisibility(View.VISIBLE);
-    } else {
-      logText.setVisibility(View.GONE);
-    }
 
     // Provide an implementation of a logger so we can output SDK events to the UI.
     VideoPlayerController.Logger logger =
@@ -99,9 +93,6 @@ public class VideoFragment extends Fragment {
           @Override
           public void log(String message) {
             Log.i("ImaExample", message);
-            if (logText != null) {
-              logText.append(message);
-            }
           }
         };
 
@@ -109,7 +100,6 @@ public class VideoFragment extends Fragment {
         new VideoPlayerController(
             this.getActivity(),
             videoPlayerWithAdPlayback,
-            playButton,
             videoContainer,
             getString(R.string.ad_ui_lang),
             companionAdSlot,
@@ -117,10 +107,7 @@ public class VideoFragment extends Fragment {
             (popupUrl) -> {
                 Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(popupUrl));
                 startActivity(browserIntent);
-            },
-            debugEnabled);
-
-    playButton.requestFocus();
+            });
 
     loadVideo();
   }

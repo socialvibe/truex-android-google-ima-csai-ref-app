@@ -51,9 +51,6 @@ public class VideoPlayerController {
   // Ad-enabled video player.
   private VideoPlayerWithAdPlayback videoPlayerWithAdPlayback;
 
-  // Button the user taps to begin video playback and ad request.
-  private View playButton;
-
   // VAST ad tag URL to use when requesting ads during video playback.
   private String currentAdTagUrl;
 
@@ -179,15 +176,12 @@ public class VideoPlayerController {
   public VideoPlayerController(
       Context context,
       VideoPlayerWithAdPlayback videoPlayerWithAdPlayback,
-      View playButton,
       View videoContainer,
       String language,
       ViewGroup companionViewGroup,
       Logger log,
-      PopupCallback callback,
-      Boolean isDebug) {
+      PopupCallback callback) {
     this.videoPlayerWithAdPlayback = videoPlayerWithAdPlayback;
-    this.playButton = playButton;
     this.videoContainer = videoContainer;
     this.companionViewGroup = companionViewGroup;
     this.log = log;
@@ -197,7 +191,7 @@ public class VideoPlayerController {
     // Create an AdsLoader and optionally set the language.
     sdkFactory = ImaSdkFactory.getInstance();
     ImaSdkSettings imaSdkSettings = sdkFactory.createImaSdkSettings();
-    imaSdkSettings.setDebugMode(isDebug);
+    imaSdkSettings.setDebugMode(true);
     imaSdkSettings.setLanguage(language);
 
     adDisplayContainer =
@@ -217,22 +211,6 @@ public class VideoPlayerController {
         });
 
     adsLoader.addAdsLoadedListener(new AdsLoadedListener());
-
-    // When Play is clicked, request ads and hide the button.
-    playButton.setOnClickListener(view -> {
-      requestAndPlayAds(-1);
-    });
-
-    playButton.setOnKeyListener((view, keyCode, keyEvent) -> {
-      if (keyEvent.getAction() != KeyEvent.ACTION_UP) return false;
-      if (keyCode == KeyEvent.KEYCODE_ENTER
-          || keyCode == KeyEvent.KEYCODE_DPAD_CENTER
-          || keyCode == KeyEvent.KEYCODE_SPACE) {
-        requestAndPlayAds(-1);
-        return true; // handled
-      }
-      return false;
-    });
   }
 
   private void log(String message) {
@@ -274,8 +252,6 @@ public class VideoPlayerController {
 
     // Since we're switching to a new video, tell the SDK the previous video is finished.
     cleanupAds();
-
-    playButton.setVisibility(View.GONE);
 
     // Create the ads request.
     AdsRequest request = sdkFactory.createAdsRequest();
