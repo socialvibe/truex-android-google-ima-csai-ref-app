@@ -303,7 +303,9 @@ public class VideoPlayerController {
   private void playInteractiveAd(String vastUrl) {
     videoPlayerWithAdPlayback.disableControls();
 
+    // On some older 4K devices we need to actually hide the actual playback view so that truex videos can show.
     videoPlayerWithAdPlayback.setPlayerVisibility(false);
+
     truexCredit = false;
     truexAdRenderer = new TruexAdRenderer(videoPlayerWithAdPlayback.getContext());
 

@@ -382,7 +382,7 @@ public class VideoPlayerWithAdPlayback extends RelativeLayout {
     videoPlayer.disablePlaybackControls();
   }
 
-  // On some older 4K devices we need to actually hide the player video so that truex videos can show.
+  // On some older 4K devices we need to actually hide the actual playback view so that truex videos can show.
   public void setPlayerVisibility(boolean visible) {
     videoPlayer.setVisibility(visible ? View.VISIBLE : View.INVISIBLE);
   }
