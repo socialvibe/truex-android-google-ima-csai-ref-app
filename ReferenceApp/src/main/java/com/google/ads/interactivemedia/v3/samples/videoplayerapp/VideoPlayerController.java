@@ -130,7 +130,7 @@ public class VideoPlayerController {
                       throw new RuntimeException(e);
                     }
                   } else {
-                    getVideoAdPlayerView().setVisibility(View.VISIBLE);
+                    videoPlayerWithAdPlayback.setVisibility(View.VISIBLE);
                   }
                   break;
                 case CONTENT_PAUSE_REQUESTED:
@@ -221,7 +221,7 @@ public class VideoPlayerController {
 
   private void resumeContent() {
     videoPlayerWithAdPlayback.resumeContentAfterAdPlayback();
-    getVideoAdPlayerView().setVisibility(View.VISIBLE);
+    videoPlayerWithAdPlayback.setVisibility(View.VISIBLE);
     isAdPlaying = false;
     removePlayPauseOnAdTouch();
   }
@@ -301,6 +301,8 @@ public class VideoPlayerController {
   }
 
   private void playInteractiveAd(String vastUrl) {
+    videoPlayerWithAdPlayback.disableControls();
+
     truexCredit = false;
     truexAdRenderer = new TruexAdRenderer(videoPlayerWithAdPlayback.getContext());
 
@@ -310,9 +312,7 @@ public class VideoPlayerController {
     truexAdRenderer.init(vastUrl, options);
     truexAdRenderer.start((ViewGroup) videoContainer);
 
-    View playerView = getVideoAdPlayerView();
-    playerView.setVisibility(View.GONE);
-    //playerView.setVisibility(View.INVISIBLE);
+    videoPlayerWithAdPlayback.setVisibility(View.GONE);
   }
 
   private void onTruexAdEvent(TruexAdEvent event, Map<String, ?> data) {
@@ -330,8 +330,11 @@ public class VideoPlayerController {
         String url = (String)data.get("url");
         popupCallback.onPopup(url);
         break;
-      case AD_FETCH_COMPLETED:
       case AD_STARTED:
+        videoPlayerWithAdPlayback.disableControls();
+        break;
+
+      case AD_FETCH_COMPLETED:
       case USER_CANCEL:
       case OPT_IN:
       case OPT_OUT:
@@ -351,10 +354,6 @@ public class VideoPlayerController {
       // Continue the content stream and display linear ads
       displayRegularAds();
     }
-  }
-
-  private View getVideoAdPlayerView() {
-    return videoContainer.findViewById(R.id.videoPlayerWithAdPlayback);
   }
 
   public void resumeStream() {

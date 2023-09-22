@@ -312,7 +312,6 @@ public class VideoPlayerWithAdPlayback extends RelativeLayout {
     videoPlayer.disablePlaybackControls();
     savePosition();
     videoPlayer.stopPlayback();
-    //videoPlayer.setVisibility(INVISIBLE);
   }
 
   /**
@@ -324,7 +323,6 @@ public class VideoPlayerWithAdPlayback extends RelativeLayout {
       Log.w("ImaExample", "No content URL specified.");
       return;
     }
-    //videoPlayer.setVisibility(VISIBLE);
     isAdDisplayed = false;
     videoPlayer.setVideoPath(contentVideoUrl);
     videoPlayer.enablePlaybackControls(/* timeout= */ 3000);
