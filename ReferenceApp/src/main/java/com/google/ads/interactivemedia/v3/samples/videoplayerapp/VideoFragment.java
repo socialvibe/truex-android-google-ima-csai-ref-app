@@ -8,7 +8,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -92,10 +91,6 @@ public class VideoFragment extends Fragment {
     VideoPlayerWithAdPlayback videoPlayerWithAdPlayback =
         rootView.findViewById(R.id.videoPlayerWithAdPlayback);
     View videoContainer = rootView.findViewById(R.id.videoContainer);
-
-    // Make the dummyScrollContent height the size of the screen height.
-    DisplayMetrics displayMetrics = new DisplayMetrics();
-    getActivity().getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
 
     // Provide an implementation of a logger so we can output SDK events to the UI.
     VideoPlayerController.Logger logger =
