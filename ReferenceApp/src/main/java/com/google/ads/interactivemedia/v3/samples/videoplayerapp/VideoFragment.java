@@ -1,6 +1,8 @@
 package com.google.ads.interactivemedia.v3.samples.videoplayerapp;
 
+import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
@@ -26,11 +28,32 @@ public class VideoFragment extends Fragment {
 
   private VideoPlayerController videoPlayerController;
 
+  public boolean isTouchDevice() {
+    return getActivity().getPackageManager().hasSystemFeature(PackageManager.FEATURE_TOUCHSCREEN);
+  }
+
   @Override
   public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    if (isTouchDevice()) {
+      // Ensure we are in landscape for phones and tablets.
+      Activity activity = getActivity();
+      activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
+    }
+
     View rootView = inflater.inflate(R.layout.fragment_video, container, false);
     return rootView;
   }
+
+  @Override
+  public void onDetach() {
+    if (isTouchDevice()) {
+      // Restore portrait orientation for normal usage on phones and tablets.
+      Activity activity = getActivity();
+      activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT);
+    }
+    super.onDetach();
+  }
+
 
   @Override
   public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
