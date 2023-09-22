@@ -304,7 +304,7 @@ public class VideoPlayerController {
     videoPlayerWithAdPlayback.disableControls();
 
     // On some older 4K devices we need to actually hide the actual playback view so that truex videos can show.
-    videoPlayerWithAdPlayback.setPlayerVisibility(false);
+    videoPlayerWithAdPlayback.hidePlayer();
 
     truexCredit = false;
     truexAdRenderer = new TruexAdRenderer(videoPlayerWithAdPlayback.getContext());
@@ -348,7 +348,7 @@ public class VideoPlayerController {
   };
 
   private void onTruexAdCompleted(){
-    videoPlayerWithAdPlayback.setPlayerVisibility(true);
+    videoPlayerWithAdPlayback.showPlayer();
     if (truexCredit) {
       // The user received true[ATTENTION] credit
       // Resume the content stream (and skip any linear ads)
