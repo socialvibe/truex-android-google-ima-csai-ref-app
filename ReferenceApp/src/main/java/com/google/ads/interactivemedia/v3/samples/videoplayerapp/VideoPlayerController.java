@@ -3,7 +3,6 @@
 package com.google.ads.interactivemedia.v3.samples.videoplayerapp;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,7 +18,6 @@ import com.google.ads.interactivemedia.v3.api.AdsRenderingSettings;
 import com.google.ads.interactivemedia.v3.api.AdsRequest;
 import com.google.ads.interactivemedia.v3.api.ImaSdkFactory;
 import com.google.ads.interactivemedia.v3.api.ImaSdkSettings;
-import com.truex.adrenderer.IEventEmitter;
 import com.truex.adrenderer.TruexAdEvent;
 import com.truex.adrenderer.TruexAdOptions;
 import com.truex.adrenderer.TruexAdRenderer;
@@ -52,9 +50,6 @@ public class VideoPlayerController {
   // Ad-enabled video player.
   private VideoPlayerWithAdPlayback videoPlayerWithAdPlayback;
 
-  // Button the user taps to begin video playback and ad request.
-  private View playButton;
-
   // VAST ad tag URL to use when requesting ads during video playback.
   private String currentAdTagUrl;
 
@@ -62,9 +57,6 @@ public class VideoPlayerController {
 
   // URL of content video.
   private String contentVideoUrl;
-
-  // ViewGroup to render an associated companion ad into.
-  private ViewGroup companionViewGroup;
 
   // Tracks if the SDK is playing an ad, since the SDK might not necessarily use the video
   // player provided to play the video ad.
@@ -138,7 +130,7 @@ public class VideoPlayerController {
                       throw new RuntimeException(e);
                     }
                   } else {
-                    getVideoAdPlayerView().setVisibility(View.VISIBLE);
+                    videoPlayerWithAdPlayback.setVisibility(View.VISIBLE);
                   }
                   break;
                 case CONTENT_PAUSE_REQUESTED:
@@ -180,17 +172,12 @@ public class VideoPlayerController {
   public VideoPlayerController(
       Context context,
       VideoPlayerWithAdPlayback videoPlayerWithAdPlayback,
-      View playButton,
       View videoContainer,
       String language,
-      ViewGroup companionViewGroup,
       Logger log,
-      PopupCallback callback,
-      Boolean isDebug) {
+      PopupCallback callback) {
     this.videoPlayerWithAdPlayback = videoPlayerWithAdPlayback;
-    this.playButton = playButton;
     this.videoContainer = videoContainer;
-    this.companionViewGroup = companionViewGroup;
     this.log = log;
     this.popupCallback = callback;
     isAdPlaying = false;
@@ -198,7 +185,7 @@ public class VideoPlayerController {
     // Create an AdsLoader and optionally set the language.
     sdkFactory = ImaSdkFactory.getInstance();
     ImaSdkSettings imaSdkSettings = sdkFactory.createImaSdkSettings();
-    imaSdkSettings.setDebugMode(isDebug);
+    imaSdkSettings.setDebugMode(true);
     imaSdkSettings.setLanguage(language);
 
     adDisplayContainer =
@@ -217,10 +204,7 @@ public class VideoPlayerController {
           }
         });
 
-    adsLoader.addAdsLoadedListener(new VideoPlayerController.AdsLoadedListener());
-
-    // When Play is clicked, request ads and hide the button.
-    playButton.setOnClickListener(view -> requestAndPlayAds(-1));
+    adsLoader.addAdsLoadedListener(new AdsLoadedListener());
   }
 
   private void log(String message) {
@@ -237,7 +221,7 @@ public class VideoPlayerController {
 
   private void resumeContent() {
     videoPlayerWithAdPlayback.resumeContentAfterAdPlayback();
-    getVideoAdPlayerView().setVisibility(View.VISIBLE);
+    videoPlayerWithAdPlayback.setVisibility(View.VISIBLE);
     isAdPlaying = false;
     removePlayPauseOnAdTouch();
   }
@@ -262,8 +246,6 @@ public class VideoPlayerController {
 
     // Since we're switching to a new video, tell the SDK the previous video is finished.
     cleanupAds();
-
-    playButton.setVisibility(View.GONE);
 
     // Create the ads request.
     AdsRequest request = sdkFactory.createAdsRequest();
@@ -319,20 +301,24 @@ public class VideoPlayerController {
   }
 
   private void playInteractiveAd(String vastUrl) {
+    videoPlayerWithAdPlayback.disableControls();
+
+    // On some older 4K devices we need to actually hide the actual playback view so that truex videos can show.
+    videoPlayerWithAdPlayback.hidePlayer();
+
     truexCredit = false;
     truexAdRenderer = new TruexAdRenderer(videoPlayerWithAdPlayback.getContext());
 
-    for (TruexAdEvent event : TruexAdEvent.values()) {
-      truexAdRenderer.addEventListener(event, onTruexAdEvent);
-    }
+    truexAdRenderer.addEventListener(null, this::onTruexAdEvent); // listen to all events.
 
     TruexAdOptions options = new TruexAdOptions();
-    truexAdRenderer.init(vastUrl, options, () -> truexAdRenderer.start((ViewGroup) videoContainer));
+    truexAdRenderer.init(vastUrl, options);
+    truexAdRenderer.start((ViewGroup) videoContainer);
 
-    getVideoAdPlayerView().setVisibility(View.GONE);
+    videoPlayerWithAdPlayback.setVisibility(View.GONE);
   }
 
-  private IEventEmitter.IEventHandler onTruexAdEvent = (TruexAdEvent event, Map<String, ?> data) -> {
+  private void onTruexAdEvent(TruexAdEvent event, Map<String, ?> data) {
     log("onTruexAdEvent: " + event.toString());
     switch (event) {
       case AD_COMPLETED:
@@ -347,8 +333,11 @@ public class VideoPlayerController {
         String url = (String)data.get("url");
         popupCallback.onPopup(url);
         break;
-      case AD_FETCH_COMPLETED:
       case AD_STARTED:
+        videoPlayerWithAdPlayback.disableControls();
+        break;
+
+      case AD_FETCH_COMPLETED:
       case USER_CANCEL:
       case OPT_IN:
       case OPT_OUT:
@@ -359,6 +348,7 @@ public class VideoPlayerController {
   };
 
   private void onTruexAdCompleted(){
+    videoPlayerWithAdPlayback.showPlayer();
     if (truexCredit) {
       // The user received true[ATTENTION] credit
       // Resume the content stream (and skip any linear ads)
@@ -368,10 +358,6 @@ public class VideoPlayerController {
       // Continue the content stream and display linear ads
       displayRegularAds();
     }
-  }
-
-  private View getVideoAdPlayerView() {
-    return videoContainer.findViewById(R.id.videoPlayerWithAdPlayback);
   }
 
   public void resumeStream() {
@@ -426,7 +412,7 @@ public class VideoPlayerController {
       adsManager = null;
     }
 
-    if (truexAdRenderer != null) truexAdRenderer.destroy();
+    if (truexAdRenderer != null) truexAdRenderer.stop();
   }
 
   /** Seeks to time in content video in seconds. */

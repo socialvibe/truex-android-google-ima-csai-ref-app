@@ -10,6 +10,7 @@ import android.media.MediaPlayer.OnErrorListener;
 import android.util.AttributeSet;
 import android.widget.MediaController;
 import android.widget.VideoView;
+
 import java.util.ArrayList;
 import java.util.List;
 
