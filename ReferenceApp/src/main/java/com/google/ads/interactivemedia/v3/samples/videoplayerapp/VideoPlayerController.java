@@ -303,6 +303,7 @@ public class VideoPlayerController {
   private void playInteractiveAd(String vastUrl) {
     videoPlayerWithAdPlayback.disableControls();
 
+    videoPlayerWithAdPlayback.setPlayerVisibility(false);
     truexCredit = false;
     truexAdRenderer = new TruexAdRenderer(videoPlayerWithAdPlayback.getContext());
 
@@ -345,6 +346,7 @@ public class VideoPlayerController {
   };
 
   private void onTruexAdCompleted(){
+    videoPlayerWithAdPlayback.setPlayerVisibility(true);
     if (truexCredit) {
       // The user received true[ATTENTION] credit
       // Resume the content stream (and skip any linear ads)
