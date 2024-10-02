@@ -1,14 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <network-security-config>
-  <base-config>
-    <trust-anchors>
-      <certificates src="user"/>
-      <certificates src="system"/>
-    </trust-anchors>
-  </base-config>
-  <debug-overrides>
-    <trust-anchors>
-      <certificates src="user"/>
-    </trust-anchors>
-  </debug-overrides>
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="true">media.truex.com</domain>
+    </domain-config>
 </network-security-config>
