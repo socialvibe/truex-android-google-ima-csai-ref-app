@@ -6,8 +6,8 @@
     android:background="#000000"
     android:orientation="vertical">
 
-    <com.truex.googlereferenceapp.VideoPlayerWithAdPlayback
-        android:id="@+id/videoPlayerWithAdPlayback"
+    <com.truex.googlereferenceapp.VideoPlayerWithAds
+        android:id="@+id/videoPlayerWithAds"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
@@ -21,5 +21,5 @@
             android:id="@+id/adUiContainer"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
-    </com.truex.googlereferenceapp.VideoPlayerWithAdPlayback>
+    </com.truex.googlereferenceapp.VideoPlayerWithAds>
 </LinearLayout>

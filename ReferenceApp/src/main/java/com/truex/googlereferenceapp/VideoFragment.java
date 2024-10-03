@@ -9,7 +9,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
-import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -71,9 +70,9 @@ public class VideoFragment extends Fragment {
     }
 
     videoPlayerController.setContentVideo("https://ctv.truex.com/assets/reference-app-stream-no-ads-720p.mp4");
-//    videoPlayerController.setAdTagUrl("https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/ad_rule_samples&ciu_szs=300x250&ad_rule=1&impl=s&gdfp_req=1&env=vp&output=vmap&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ar%3Dpremidpost&cmsid=496&vid=short_onecue&correlator=");
 
-    // Ensure we refer to CTV vs mobile ads.
+    // Use a sample vast xml for demonstration. Ensure we refer to CTV vs mobile ads.
+    //videoPlayerController.setAdTagUrl("https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/ad_rule_samples&ciu_szs=300x250&ad_rule=1&impl=s&gdfp_req=1&env=vp&output=vmap&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ar%3Dpremidpost&cmsid=496&vid=short_onecue&correlator=");
     boolean isTV = getActivity().getPackageManager().hasSystemFeature(PackageManager.FEATURE_LEANBACK);
     int vmapXmlResource = isTV ? R.raw.ctv_truex_vmap : R.raw.mobile_truex_vmap;
     videoPlayerController.setAdTagResponse(getRawFileContents(vmapXmlResource));
@@ -91,7 +90,7 @@ public class VideoFragment extends Fragment {
 
   private void initUi() throws IOException {
     View rootView = getView();
-    VideoPlayerWithAdPlayback videoPlayerWithAdPlayback =
+    VideoPlayerWithAds videoPlayerWithAds =
         rootView.findViewById(R.id.videoPlayerWithAdPlayback);
     View videoContainer = rootView.findViewById(R.id.videoContainer);
 
@@ -104,11 +103,10 @@ public class VideoFragment extends Fragment {
           }
         };
 
-    Display d = this.getActivity().getDisplay();
     videoPlayerController =
         new VideoPlayerController(
             this.getActivity(),
-            videoPlayerWithAdPlayback,
+          videoPlayerWithAds,
             videoContainer,
             getString(R.string.ad_ui_lang),
             logger,

@@ -23,7 +23,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void loadDetailFragment() {
         getSupportFragmentManager().beginTransaction()
-                .add(R.id.activity_main, new DetailFragment())
+                .add(R.id.activity_main, new HomePageFragment())
                 .commit();
     }
 }

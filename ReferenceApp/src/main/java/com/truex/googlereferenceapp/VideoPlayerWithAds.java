@@ -23,7 +23,7 @@ import java.util.TimerTask;
 /**
  * Video player that can play content video and ads.
  */
-public class VideoPlayerWithAdPlayback extends RelativeLayout {
+public class VideoPlayerWithAds extends RelativeLayout {
 
   // The wrapped video player.
   private SampleVideoPlayer videoPlayer;
@@ -63,15 +63,15 @@ public class VideoPlayerWithAdPlayback extends RelativeLayout {
   private final List<VideoAdPlayer.VideoAdPlayerCallback> adCallbacks =
     new ArrayList<VideoAdPlayer.VideoAdPlayerCallback>(1);
 
-  public VideoPlayerWithAdPlayback(Context context, AttributeSet attrs, int defStyle) {
+  public VideoPlayerWithAds(Context context, AttributeSet attrs, int defStyle) {
     super(context, attrs, defStyle);
   }
 
-  public VideoPlayerWithAdPlayback(Context context, AttributeSet attrs) {
+  public VideoPlayerWithAds(Context context, AttributeSet attrs) {
     super(context, attrs);
   }
 
-  public VideoPlayerWithAdPlayback(Context context) {
+  public VideoPlayerWithAds(Context context) {
     super(context);
   }
 
