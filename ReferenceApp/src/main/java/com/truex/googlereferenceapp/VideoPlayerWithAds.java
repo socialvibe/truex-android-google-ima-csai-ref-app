@@ -38,8 +38,6 @@ import com.google.ads.interactivemedia.v3.api.player.VideoProgressUpdate;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 
 /**
  * Video player that can play content video and ads.
@@ -51,9 +49,6 @@ public class VideoPlayerWithAds extends RelativeLayout {
   // The wrapped video player.
   private PlayerView playerView;
   private ExoPlayer videoPlayer;
-
-  // A Timer to help track media updates
-  private Timer timer;
 
   private AdMediaInfo currentAd;
   private AdPodInfo currentAdPod;
@@ -91,34 +86,6 @@ public class VideoPlayerWithAds extends RelativeLayout {
   protected void onFinishInflate() {
     super.onFinishInflate();
     init();
-  }
-
-  private void startTracking() {
-    if (timer != null) {
-      return;
-    }
-    timer = new Timer();
-    TimerTask updateTimerTask =
-      new TimerTask() {
-        @Override
-        public void run() {
-          // Tell IMA the current video progress. A better implementation would be
-          // reactive to events from the media player, instead of polling.
-          for (VideoAdPlayer.VideoAdPlayerCallback callback : adCallbacks) {
-            callback.onAdProgress(currentAd, videoAdPlayer.getAdProgress());
-          }
-        }
-      };
-    int initialDelayMs = 250;
-    int pollingTimeMs = 250;
-    timer.schedule(updateTimerTask, pollingTimeMs, initialDelayMs);
-  }
-
-  private void stopTracking() {
-    if (timer != null) {
-      timer.cancel();
-      timer = null;
-    }
   }
 
   private void init() {
@@ -159,19 +126,6 @@ public class VideoPlayerWithAds extends RelativeLayout {
     videoAdPlayer =
       new VideoAdPlayer() {
         @Override
-        public int getVolume() {
-          return Math.round(videoPlayer.getVolume() * 100);
-        }
-
-        @Override
-        public void playAd(@NonNull AdMediaInfo info) {
-          // @TODO track progress events instead
-          startTracking();
-          isAdPlaying = true;
-          videoPlayer.play();
-        }
-
-        @Override
         public void loadAd(@NonNull AdMediaInfo adMediaInfo, @NonNull AdPodInfo adPodInfo) {
           currentAd = adMediaInfo;
           currentAdPod = adPodInfo;
@@ -180,14 +134,19 @@ public class VideoPlayerWithAds extends RelativeLayout {
         }
 
         @Override
+        public void playAd(@NonNull AdMediaInfo info) {
+          // @TODO track progress events instead
+          isAdPlaying = true;
+          videoPlayer.play();
+        }
+
+        @Override
         public void stopAd(@NonNull AdMediaInfo info) {
-          stopTracking();
           videoPlayer.stop();
         }
 
         @Override
         public void pauseAd(@NonNull AdMediaInfo info) {
-          stopTracking();
           videoPlayer.pause();
         }
 
@@ -204,6 +163,11 @@ public class VideoPlayerWithAds extends RelativeLayout {
         @Override
         public void removeCallback(@NonNull VideoAdPlayerCallback videoAdPlayerCallback) {
           adCallbacks.remove(videoAdPlayerCallback);
+        }
+
+        @Override
+        public int getVolume() {
+          return Math.round(videoPlayer.getVolume() * 100);
         }
 
         @Override
@@ -228,7 +192,6 @@ public class VideoPlayerWithAds extends RelativeLayout {
     // Set player callbacks for delegating major video events.
     videoPlayer.addListener(
       new Player.Listener() {
-        @Override
         public void onIsPlayingChanged(boolean isPlaying) {
           if (isAdPlaying) {
             if (isPlaying) {
@@ -236,6 +199,10 @@ public class VideoPlayerWithAds extends RelativeLayout {
                 callback.onPlay(currentAd);
                 // @TODO call onResume?
               }
+
+              // Ensure we are polling the ad progress.
+              updateAdProgress();
+
             } else {
               for (VideoAdPlayer.VideoAdPlayerCallback callback : adCallbacks) {
                 callback.onPause(currentAd);
@@ -267,6 +234,24 @@ public class VideoPlayerWithAds extends RelativeLayout {
           }
         }
       });
+  }
+
+  private void updateAdProgress() {
+    if (!isAdPlaying || currentAd == null) return;
+
+    long position = videoPlayer.getCurrentPosition();
+    long duration = videoPlayer.getDuration();
+
+    VideoProgressUpdate progress = (duration == C.TIME_UNSET) ? VideoProgressUpdate.VIDEO_TIME_NOT_READY
+      : new VideoProgressUpdate(position, duration);
+
+    for (VideoAdPlayer.VideoAdPlayerCallback callback : adCallbacks) {
+      callback.onAdProgress(currentAd, progress);
+    }
+
+    if (videoPlayer.isPlaying()) {
+      playerView.postDelayed(this::updateAdProgress, 1000);
+    }
   }
 
   /**
@@ -428,14 +413,14 @@ public class VideoPlayerWithAds extends RelativeLayout {
     enableControls(false);
   }
 
-  private void enableControls(boolean doEnable) {
-    if (doEnable) {
+  private void enableControls(boolean enable) {
+    if (enable) {
       playerView.showController();
     } else {
       playerView.hideController();
     }
-    playerView.setControllerAutoShow(doEnable);
-    playerView.setUseController(doEnable);
+    playerView.setControllerAutoShow(enable);
+    playerView.setUseController(enable);
   }
 
 
