@@ -1,6 +1,6 @@
 // Copyright 2014 Google Inc. All Rights Reserved.
 
-package com.google.ads.interactivemedia.v3.samples.samplevideoplayer;
+package com.truex.googlereferenceapp;
 
 /** Interface definition for controlling video playback. */
 public interface VideoPlayer {

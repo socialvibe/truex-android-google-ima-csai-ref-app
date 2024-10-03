@@ -1,4 +1,4 @@
-package com.google.ads.interactivemedia.v3.samples.videoplayerapp;
+package com.truex.googlereferenceapp;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;

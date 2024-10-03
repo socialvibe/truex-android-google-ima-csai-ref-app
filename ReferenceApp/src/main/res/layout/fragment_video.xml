@@ -6,12 +6,12 @@
     android:background="#000000"
     android:orientation="vertical">
 
-    <com.google.ads.interactivemedia.v3.samples.videoplayerapp.VideoPlayerWithAdPlayback
+    <com.truex.googlereferenceapp.VideoPlayerWithAdPlayback
         android:id="@+id/videoPlayerWithAdPlayback"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <com.google.ads.interactivemedia.v3.samples.samplevideoplayer.SampleVideoPlayer
+        <com.truex.googlereferenceapp.SampleVideoPlayer
             android:id="@+id/videoPlayer"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -21,5 +21,5 @@
             android:id="@+id/adUiContainer"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
-    </com.google.ads.interactivemedia.v3.samples.videoplayerapp.VideoPlayerWithAdPlayback>
+    </com.truex.googlereferenceapp.VideoPlayerWithAdPlayback>
 </LinearLayout>

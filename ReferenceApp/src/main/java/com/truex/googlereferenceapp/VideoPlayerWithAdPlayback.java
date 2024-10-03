@@ -1,6 +1,6 @@
 // Copyright 2014 Google Inc. All Rights Reserved.
 
-package com.google.ads.interactivemedia.v3.samples.videoplayerapp;
+package com.truex.googlereferenceapp;
 
 import android.content.Context;
 import android.util.AttributeSet;
@@ -14,8 +14,6 @@ import com.google.ads.interactivemedia.v3.api.player.AdMediaInfo;
 import com.google.ads.interactivemedia.v3.api.player.ContentProgressProvider;
 import com.google.ads.interactivemedia.v3.api.player.VideoAdPlayer;
 import com.google.ads.interactivemedia.v3.api.player.VideoProgressUpdate;
-import com.google.ads.interactivemedia.v3.samples.samplevideoplayer.SampleVideoPlayer;
-import com.google.ads.interactivemedia.v3.samples.samplevideoplayer.VideoPlayer;
 
 import java.util.ArrayList;
 import java.util.List;
