@@ -11,11 +11,12 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <com.truex.googlereferenceapp.SampleVideoPlayer
-            android:id="@+id/videoPlayer"
+        <androidx.media3.ui.PlayerView
+            android:id="@+id/player_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_centerHorizontal="true" />
+            android:focusable="true"
+            android:focusableInTouchMode="true" />
 
         <FrameLayout
             android:id="@+id/adUiContainer"

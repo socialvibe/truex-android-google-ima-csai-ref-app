@@ -25,7 +25,6 @@ import androidx.annotation.OptIn;
 import androidx.media3.common.C;
 import androidx.media3.common.ForwardingPlayer;
 import androidx.media3.common.MediaItem;
-import androidx.media3.common.Metadata;
 import androidx.media3.common.Player;
 import androidx.media3.common.Timeline;
 import androidx.media3.common.util.UnstableApi;
@@ -38,15 +37,11 @@ import androidx.media3.exoplayer.dash.DefaultDashChunkSource;
 import androidx.media3.exoplayer.hls.HlsMediaSource;
 import androidx.media3.exoplayer.source.MediaSource;
 import androidx.media3.exoplayer.source.ProgressiveMediaSource;
-import androidx.media3.extractor.metadata.emsg.EventMessage;
-import androidx.media3.extractor.metadata.id3.TextInformationFrame;
 import androidx.media3.ui.PlayerView;
 
-import com.google.ads.interactivemedia.v3.api.CuePoint;
 import com.google.ads.interactivemedia.v3.api.StreamManager;
 
 import java.util.Formatter;
-import java.util.List;
 import java.util.Locale;
 
 /**
@@ -59,7 +54,7 @@ public class VideoPlayer {
 
     private final Context context;
 
-    private ExoPlayer exoPlayer;
+    final private ExoPlayer exoPlayer;
     private final PlayerView playerView;
     private VideoPlayerCallback playerCallback;
 
@@ -75,36 +70,6 @@ public class VideoPlayer {
         this.playerView = playerView;
         streamRequested = false;
         canSeek = true;
-        initPlayer();
-    }
-
-    static public String positionDisplay(long position) {
-        StringBuilder formatBuilder = new StringBuilder();
-        Formatter formatter = new Formatter(formatBuilder, Locale.getDefault());
-        return Util.getStringForTime(formatBuilder, formatter, position);
-    }
-
-    public void logPosition(String context) {
-        long streamPos = exoPlayer.getCurrentPosition();
-        int state = exoPlayer.getPlaybackState();
-        boolean loading = exoPlayer.isLoading();
-        boolean playing = exoPlayer.isPlaying();
-        boolean inAd = exoPlayer.isPlayingAd();
-        logPosition(context + ": state: " + state + " playing: " + playing + " loading: " + loading + " inAd: " + inAd, contentPos, streamPos);
-    }
-
-    static public void logPosition(String context, long position) {
-        StringBuilder msg = new StringBuilder();
-        msg.append("*** ");
-        msg.append(context);
-        msg.append(": ");
-        msg.append(positionDisplay(position));
-        Log.i(CLASSTAG, msg.toString());
-    }
-
-
-    private void initPlayer() {
-        release();
 
         exoPlayer = new ExoPlayer.Builder(context).build();
 
@@ -136,12 +101,31 @@ public class VideoPlayer {
         playerView.setPlayer(playerWrapper);
     }
 
+    static public String positionDisplay(long position) {
+        StringBuilder formatBuilder = new StringBuilder();
+        Formatter formatter = new Formatter(formatBuilder, Locale.getDefault());
+        return Util.getStringForTime(formatBuilder, formatter, position);
+    }
+
+    public void logPosition(String context) {
+        long streamPos = exoPlayer.getCurrentPosition();
+        int state = exoPlayer.getPlaybackState();
+        boolean loading = exoPlayer.isLoading();
+        boolean playing = exoPlayer.isPlaying();
+        boolean inAd = exoPlayer.isPlayingAd();
+        logPosition(context + ": state: " + state + " playing: " + playing + " loading: " + loading + " inAd: " + inAd, streamPos);
+    }
+
+    static public void logPosition(String context, long position) {
+        StringBuilder msg = new StringBuilder();
+        msg.append("*** ");
+        msg.append(context);
+        msg.append(": ");
+        msg.append(positionDisplay(position));
+        Log.i(CLASSTAG, msg.toString());
+    }
+
     public void play() {
-        if (exoPlayer == null) {
-            initPlayer();
-        }
-
-
         if (streamRequested) {
             // Stream already requested, just resume.
             exoPlayer.play();
@@ -205,15 +189,12 @@ public class VideoPlayer {
     }
 
     public void release() {
-        if (exoPlayer != null) {
-            exoPlayer.release();
-            exoPlayer = null;
-            streamRequested = false;
-        }
+        exoPlayer.release();
+        streamRequested = false;
     }
 
     public void setStreamUrl(String streamUrl) {
-        if (exoPlayer != null && streamRequested) {
+        if (streamRequested) {
             exoPlayer.stop();
         }
         this.streamUrl = streamUrl;
@@ -244,6 +225,10 @@ public class VideoPlayer {
         return streamRequested;
     }
 
+    public boolean isPlaying() {
+        return exoPlayer != null && exoPlayer.isPlaying();
+    }
+
     // Methods for exposing player information.
     void setCallback(VideoPlayerCallback callback) {
         playerCallback = callback;
@@ -256,35 +241,31 @@ public class VideoPlayer {
     /**
      * Returns current position of the playhead in milliseconds for DASH and HLS stream.
      */
-    public long getCurrentPositionMs() {
-        if (exoPlayer == null) return 0;
-
-        Timeline currentTimeline = exoPlayer.getCurrentTimeline();
-        if (currentTimeline.isEmpty()) {
-            return exoPlayer.getCurrentPosition();
-        }
-        Timeline.Window window = new Timeline.Window();
-        exoPlayer.getCurrentTimeline().getWindow(exoPlayer.getCurrentMediaItemIndex(), window);
-        if (window.isLive()) {
-            return exoPlayer.getCurrentPosition() + window.windowStartTimeMs;
-        } else {
-            return exoPlayer.getCurrentPosition();
-        }
+    public long getCurrentPosition() {
+        return exoPlayer.getCurrentPosition();
     }
 
     public void enableRepeatOnce() {
-        if (exoPlayer != null) exoPlayer.setRepeatMode(Player.REPEAT_MODE_ONE);
+        exoPlayer.setRepeatMode(Player.REPEAT_MODE_ONE);
     }
 
     public void setVolume(float volume) {
-        if (exoPlayer != null) exoPlayer.setVolume(volume);
+        exoPlayer.setVolume(volume);
     }
 
     public int getVolume() {
-        return exoPlayer == null ? 0 : Math.round(exoPlayer.getVolume() * 100);
+        return Math.round(exoPlayer.getVolume() * 100);
     }
 
     public long getDuration() {
-        return exoPlayer == null ? 0 : exoPlayer.getDuration();
+        return exoPlayer.getDuration();
+    }
+
+    public void addListener(Player.Listener listener) {
+        exoPlayer.addListener(listener);
+    }
+
+    public void removeListener(Player.Listener listener) {
+        exoPlayer.removeListener(listener);
     }
 }

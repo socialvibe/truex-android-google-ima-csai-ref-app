@@ -91,7 +91,7 @@ public class VideoFragment extends Fragment {
   private void initUi() throws IOException {
     View rootView = getView();
     VideoPlayerWithAds videoPlayerWithAds =
-        rootView.findViewById(R.id.videoPlayerWithAdPlayback);
+        rootView.findViewById(R.id.videoPlayerWithAds);
     View videoContainer = rootView.findViewById(R.id.videoContainer);
 
     // Provide an implementation of a logger so we can output SDK events to the UI.
