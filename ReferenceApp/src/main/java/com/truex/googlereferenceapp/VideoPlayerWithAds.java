@@ -136,7 +136,6 @@ public class VideoPlayerWithAds extends RelativeLayout {
     videoPlayer.addListener(
       new Player.Listener() {
         public void onIsPlayingChanged(boolean isPlaying) {
-          logPosition("onIsPlayingChanged: " + isPlaying);
           if (currentAd != null) {
             if (isPlaying) {
               boolean hasStarted = videoPlayer.getContentPosition() > 0;
@@ -380,10 +379,10 @@ public class VideoPlayerWithAds extends RelativeLayout {
    */
   public void resumeContentAfterAdPlayback() {
     if (contentVideoUrl == null || contentVideoUrl.isEmpty()) {
-      Log.w("ImaExample", "No content URL specified.");
+      Log.w(CLASSTAG, "resumeContentAfterAdPlayback: No content URL specified.");
       return;
     }
-    logPosition("resumeContentAfterAdPlayback");
+    Log.i(CLASSTAG, "resumeContentAfterAdPlayback");
     isAdPlaying = false;
     setStreamUrl(contentVideoUrl);
     enableControls();
@@ -426,7 +425,7 @@ public class VideoPlayerWithAds extends RelativeLayout {
 
       @Override
       public void stopAd(@NonNull AdMediaInfo info) {
-        logPosition("stopAd");
+        // nothing more to do
       }
 
       @Override
@@ -437,8 +436,7 @@ public class VideoPlayerWithAds extends RelativeLayout {
 
       @Override
       public void release() {
-        // any clean up that needs to be done
-        logPosition("release");
+        // nothing more to do
       }
 
       @Override
@@ -488,7 +486,6 @@ public class VideoPlayerWithAds extends RelativeLayout {
   }
 
   private void enableControls(boolean enable) {
-    logPosition("enableControls: " + enable);
     if (enable) {
       playerView.showController();
     } else {
@@ -501,12 +498,10 @@ public class VideoPlayerWithAds extends RelativeLayout {
 
   // On some older 4K devices we need to actually hide the actual playback view so that truex videos can show.
   public void hidePlayer() {
-    logPosition("hidePlayer");
     this.setVisibility(View.GONE);
   }
 
   public void showPlayer() {
-    logPosition("showPlayer");
     this.setVisibility(View.VISIBLE);
   }
 }
