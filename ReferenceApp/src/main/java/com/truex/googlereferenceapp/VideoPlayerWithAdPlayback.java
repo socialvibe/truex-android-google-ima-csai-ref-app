@@ -6,7 +6,6 @@ import android.net.Uri;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 
 import androidx.annotation.NonNull;
@@ -51,7 +50,6 @@ public class VideoPlayerWithAdPlayback extends RelativeLayout {
 
   private AdMediaInfo currentAd;
 
-  private ViewGroup adUiContainer;
   private String contentVideoUrl;
 
   private String currentStreamUrl;
@@ -92,8 +90,6 @@ public class VideoPlayerWithAdPlayback extends RelativeLayout {
 
     playerView = this.getRootView().findViewById(R.id.player_view);
     playerView.setPlayer(videoPlayer);
-
-    adUiContainer = this.getRootView().findViewById(R.id.adUiContainer);
 
     contentProgressProvider = () -> {
       if (currentAd != null || videoPlayer.getDuration() <= 0) {
@@ -365,13 +361,6 @@ public class VideoPlayerWithAdPlayback extends RelativeLayout {
   }
 
   /**
-   * Returns the UI element for rendering video ad elements.
-   */
-  public ViewGroup getAdUiContainer() {
-    return adUiContainer;
-  }
-
-  /**
    * Returns an implementation of the SDK's VideoAdPlayer interface.
    */
   public VideoAdPlayer getVideoAdPlayer() {
@@ -448,9 +437,6 @@ public class VideoPlayerWithAdPlayback extends RelativeLayout {
     playerView.setExtraAdGroupMarkers(extraAdGroupTimesMs, extraPlayedAdGroups);
   }
 
-  /**
-   * Returns if an ad is displayed.
-   */
   public boolean isPlayingAd() {
     return currentAd != null;
   }

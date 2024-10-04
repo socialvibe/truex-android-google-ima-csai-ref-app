@@ -181,9 +181,9 @@ public class VideoPlayerController {
     imaSdkSettings.setLanguage(language);
 
     // Container with references to video player and ad UI ViewGroup.
+    ViewGroup adUiContainer = videoPlayerWithAdPlayback.getRootView().findViewById(R.id.adUiContainer);
     AdDisplayContainer adDisplayContainer = ImaSdkFactory.createAdDisplayContainer(
-      videoPlayerWithAdPlayback.getAdUiContainer(),
-      videoPlayerWithAdPlayback.getVideoAdPlayer());
+      adUiContainer, videoPlayerWithAdPlayback.getVideoAdPlayer());
     adsLoader = sdkFactory.createAdsLoader(context, imaSdkSettings, adDisplayContainer);
 
     adsLoader.addAdErrorListener(
