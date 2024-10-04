@@ -21,7 +21,6 @@ import com.google.ads.interactivemedia.v3.api.AdsRenderingSettings;
 import com.google.ads.interactivemedia.v3.api.AdsRequest;
 import com.google.ads.interactivemedia.v3.api.ImaSdkFactory;
 import com.google.ads.interactivemedia.v3.api.ImaSdkSettings;
-import com.google.ads.interactivemedia.v3.api.player.AdMediaInfo;
 import com.truex.adrenderer.TruexAdEvent;
 import com.truex.adrenderer.TruexAdOptions;
 import com.truex.adrenderer.TruexAdRenderer;
@@ -89,7 +88,7 @@ public class VideoPlayerController {
               Ad ad = adEvent.getAd();
               //if (adEvent.getType() != AdEvent.AdEventType.AD_PROGRESS) {
                 String adId = ad == null ? null : ad.getAdId();
-                Log.i(CLASSTAG, "Ad Event: " + adId + ": " + adEvent.getType());
+                Log.i(CLASSTAG, "Ad Event: " + adId + ": " + adEvent.getType() + " " + VideoPlayerWithAds.positionDisplay(videoPlayerWithAds.getStreamPosition()));
               //}
 
               // These are the suggested event types to handle. For full list of all ad
@@ -274,7 +273,7 @@ public class VideoPlayerController {
     videoPlayerWithAds.disableControls();
 
     // pre seek to the end in case we want to play the fallback ads.
-    //videoPlayerWithAds.seekToEnd();
+    videoPlayerWithAds.seekToEnd();
 
     // On some older 4K devices we need to actually hide the actual playback view so that truex videos can show.
     videoPlayerWithAds.hidePlayer();
@@ -322,10 +321,14 @@ public class VideoPlayerController {
 
   private void onTruexAdCompleted(){
     videoPlayerWithAds.showPlayer();
+    if (truexAdRenderer != null) {
+      truexAdRenderer.stop();
+      truexAdRenderer = null;
+    }
     if (truexCredit) {
       // The user received true[ATTENTION] credit
       // Resume the content stream (and skip any linear ads)
-      resumeStream();
+      resumeContentStream();
     } else {
       // The user did not receive credit
       // Continue the content stream and display linear ads
@@ -333,9 +336,9 @@ public class VideoPlayerController {
     }
   }
 
-  public void resumeStream() {
+  public void resumeContentStream() {
     if (adsManager != null) {
-      videoPlayerWithAds.logPosition("resumeStream");
+      videoPlayerWithAds.logPosition("resumeContentStream");
       adsManager.discardAdBreak();
       adsManager.resume();
     }

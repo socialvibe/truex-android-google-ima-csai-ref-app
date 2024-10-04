@@ -97,15 +97,17 @@ public class VideoPlayerWithAds extends RelativeLayout {
     playerView = this.getRootView().findViewById(R.id.player_view);
     videoPlayer = new ExoPlayer.Builder(this.getContext()).build();
 
-    reportAvailableCommands("initial");
+    // Report available commands for seek debugging.
+//    reportAvailableCommands("initial");
+//
+//    videoPlayer.addListener(new Player.Listener() {
+//      @Override
+//      public void onAvailableCommandsChanged(Player.Commands availableCommands) {
+//        reportAvailableCommands("changed");
+//      }
+//    });
 
-    videoPlayer.addListener(new Player.Listener() {
-      @Override
-      public void onAvailableCommandsChanged(Player.Commands availableCommands) {
-        reportAvailableCommands("changed");
-      }
-    });
-
+    // @TODO remove if no longer needed.
     ForwardingPlayer playerWrapper = new ForwardingPlayer(videoPlayer) {
       @Override
       public void seekToDefaultPosition() {
@@ -202,17 +204,25 @@ public class VideoPlayerWithAds extends RelativeLayout {
   public void logPosition(String context) {
     long streamPos = videoPlayer.getCurrentPosition();
     int state = videoPlayer.getPlaybackState();
+    String stateLabel = switch (state) {
+      case Player.STATE_IDLE -> "idle";
+      case Player.STATE_BUFFERING -> "buffering";
+      case Player.STATE_READY -> "ready";
+      case Player.STATE_ENDED -> "ended";
+      default -> "unknown: " + state;
+    };
     boolean loading = videoPlayer.isLoading();
     boolean playing = videoPlayer.isPlaying();
-    boolean inAd = videoPlayer.isPlayingAd();
-    logPosition(context + ": state: " + state + " playing: " + playing + " loading: " + loading + " inAd: " + inAd, streamPos);
+    // For now we don't need full player state details
+    //logPosition(context + ": state: " + stateLabel + " playing: " + playing, streamPos);
+    logPosition(context, streamPos);
   }
 
   static public void logPosition(String context, long position) {
     StringBuilder msg = new StringBuilder();
     msg.append("*** ");
     msg.append(context);
-    msg.append(": ");
+    msg.append(" at ");
     msg.append(positionDisplay(position));
     Log.i(CLASSTAG, msg.toString());
   }
@@ -346,7 +356,7 @@ public class VideoPlayerWithAds extends RelativeLayout {
   public void seekToEnd() {
     long duration = videoPlayer.getDuration();
     if (duration > 0) {
-      long beforeEndPos = duration - 1000; // allow a bit more playback to get the ad completion.
+      long beforeEndPos = duration - 500; // allow a bit more playback to get the ad completion.
       logPosition("seekToEnd", beforeEndPos);
       videoPlayer.seekTo(beforeEndPos);
     }
@@ -360,12 +370,17 @@ public class VideoPlayerWithAds extends RelativeLayout {
   /**
    * Returns current content video play time.
    */
-  public long getCurrentContentTime() {
+  public long getContentPosition() {
     if (isAdPlaying) {
       return savedContentPosition;
     } else {
       return videoPlayer.getCurrentPosition();
     }
+  }
+
+  // i.e. ad or content
+  public long getStreamPosition() {
+    return videoPlayer.getCurrentPosition();
   }
 
   /**
@@ -430,7 +445,6 @@ public class VideoPlayerWithAds extends RelativeLayout {
       @Override
       public void stopAd(@NonNull AdMediaInfo info) {
         logPosition("stopAd");
-        videoPlayer.stop();
       }
 
       @Override
