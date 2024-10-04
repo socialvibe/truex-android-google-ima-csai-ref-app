@@ -111,7 +111,7 @@ public class VideoPlayerWithAdPlayback extends RelativeLayout {
         public void onIsPlayingChanged(boolean isPlaying) {
           if (currentAd != null) {
             if (isPlaying) {
-              boolean hasStarted = videoPlayer.getContentPosition() > 0;
+              boolean hasStarted = videoPlayer.getCurrentPosition() > 0;
               for (VideoAdPlayer.VideoAdPlayerCallback callback : adCallbacks) {
                 if (hasStarted) {
                   callback.onResume(currentAd);
