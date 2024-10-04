@@ -39,23 +39,4 @@
         android:textColor="@color/gray"
         android:textStyle="bold" />
 
-    <TextView
-        android:id="@+id/space"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
-
-    <TextView
-        android:id="@+id/appDetail3"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="- preroll at 0s"
-        android:textSize="18sp" />
-
-    <TextView
-        android:id="@+id/appDetail4"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="- midroll at 577s (9m37s)"
-        android:textSize="18sp" />
-
 </LinearLayout>

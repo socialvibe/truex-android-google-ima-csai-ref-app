@@ -82,7 +82,7 @@ public class VideoFragment extends Fragment {
       @Override
       public void run() {
         if (videoPlayerController != null) {
-          videoPlayerController.requestAndPlayAds(-1);
+          videoPlayerController.requestAndPlayAds();
         }
       }
     }, 100);
@@ -94,22 +94,12 @@ public class VideoFragment extends Fragment {
         rootView.findViewById(R.id.videoPlayerWithAds);
     View videoContainer = rootView.findViewById(R.id.videoContainer);
 
-    // Provide an implementation of a logger so we can output SDK events to the UI.
-    VideoPlayerController.Logger logger =
-        new VideoPlayerController.Logger() {
-          @Override
-          public void log(String message) {
-            Log.i("ImaExample", message);
-          }
-        };
-
     videoPlayerController =
         new VideoPlayerController(
             this.getActivity(),
           videoPlayerWithAds,
             videoContainer,
             getString(R.string.ad_ui_lang),
-            logger,
             (popupUrl) -> {
                 Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(popupUrl));
                 startActivity(browserIntent);
