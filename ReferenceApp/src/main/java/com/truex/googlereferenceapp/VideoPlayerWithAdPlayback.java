@@ -464,6 +464,22 @@ public class VideoPlayerWithAdPlayback extends RelativeLayout {
     };
   }
 
+  public void refreshAdMarkers(List<AdBreak> adBreaks) {
+    long[] extraAdGroupTimesMs = null;
+    boolean[] extraPlayedAdGroups = null;
+    if (adBreaks != null && adBreaks.size() > 0) {
+      // Set up the ad markers.
+      extraAdGroupTimesMs = new long[adBreaks.size()];
+      extraPlayedAdGroups = new boolean[adBreaks.size()];
+      for (int i = 0; i < adBreaks.size(); i++) {
+        AdBreak adBreak = adBreaks.get(i);
+        extraAdGroupTimesMs[i] = adBreak.contentPosition;
+        extraPlayedAdGroups[i] = adBreak.wasStarted;
+      }
+    }
+    playerView.setExtraAdGroupMarkers(extraAdGroupTimesMs, extraPlayedAdGroups);
+  }
+
   /**
    * Returns if an ad is displayed.
    */

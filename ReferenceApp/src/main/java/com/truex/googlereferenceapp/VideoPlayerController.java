@@ -14,6 +14,7 @@ import com.google.ads.interactivemedia.v3.api.Ad;
 import com.google.ads.interactivemedia.v3.api.AdDisplayContainer;
 import com.google.ads.interactivemedia.v3.api.AdErrorEvent;
 import com.google.ads.interactivemedia.v3.api.AdEvent;
+import com.google.ads.interactivemedia.v3.api.AdPodInfo;
 import com.google.ads.interactivemedia.v3.api.AdsLoader;
 import com.google.ads.interactivemedia.v3.api.AdsManager;
 import com.google.ads.interactivemedia.v3.api.AdsManagerLoadedEvent;
@@ -28,6 +29,7 @@ import com.truex.adrenderer.TruexAdRenderer;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.List;
 import java.util.Map;
 
 /** Ads logic for handling the IMA SDK integration code and events. */
@@ -60,6 +62,8 @@ public class VideoPlayerController {
   private TruexAdRenderer truexAdRenderer;
   private Boolean truexCredit;
 
+  private List<AdBreak> adBreaks;
+
   // Inner class implementation of AdsLoader.AdsLoaderListener.
   private class AdsLoadedListener implements AdsLoader.AdsLoadedListener {
     /** An event raised when ads are successfully loaded from the ad server via AdsLoader. */
@@ -68,6 +72,9 @@ public class VideoPlayerController {
       // Ads were successfully loaded, so get the AdsManager instance. AdsManager has
       // events for ad playback and errors.
       adsManager = adsManagerLoadedEvent.getAdsManager();
+
+      adBreaks = AdBreak.createAdBreaks(adsManager.getAdCuePoints());
+      videoPlayerWithAdPlayback.refreshAdMarkers(adBreaks);
 
       // Attach event and error event listeners.
       adsManager.addAdErrorListener(
@@ -100,11 +107,15 @@ public class VideoPlayerController {
                   // played. AdsManager.start() begins ad playback. This method is
                   // ignored for VMAP or ad rules playlists, as the SDK will
                   // automatically start executing the playlist.
-
                   adsManager.start();
-
                   break;
+
                 case STARTED:
+                  // Mark ad breaks starts so we can refresh ad markers later.
+                  AdPodInfo podInfo = ad.getAdPodInfo();
+                  AdBreak adBreak = adBreaks.get(podInfo.getPodIndex());
+                  adBreak.wasStarted = true;
+
                   if (ad.getAdSystem().contains("trueX")) {
                     try {
                       String params = ad.getTraffickingParameters();
@@ -118,6 +129,7 @@ public class VideoPlayerController {
                     videoPlayerWithAdPlayback.showPlayer();
                   }
                   break;
+
                 case CONTENT_PAUSE_REQUESTED:
                   // AdEventType.CONTENT_PAUSE_REQUESTED is fired immediately before
                   // a video ad is played.
@@ -194,6 +206,7 @@ public class VideoPlayerController {
   }
 
   private void resumeContent() {
+    videoPlayerWithAdPlayback.refreshAdMarkers(adBreaks);
     videoPlayerWithAdPlayback.resumeContentAfterAdPlayback();
     videoPlayerWithAdPlayback.setVisibility(View.VISIBLE);
     isAdPlaying = false;
