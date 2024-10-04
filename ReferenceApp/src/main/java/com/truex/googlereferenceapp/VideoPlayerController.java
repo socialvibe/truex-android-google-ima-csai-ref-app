@@ -57,7 +57,6 @@ public class VideoPlayerController {
 
   private final PopupCallback popupCallback;
 
-  final private ViewGroup truexContainer;
   private TruexAdRenderer truexAdRenderer;
   private Boolean truexCredit;
 
@@ -155,12 +154,10 @@ public class VideoPlayerController {
       Context context,
       VideoPlayerWithAds videoPlayerWithAds,
       ViewGroup videoContainer,
-      ViewGroup truexContainer,
       String language,
       PopupCallback callback) {
     this.videoPlayerWithAds = videoPlayerWithAds;
     this.videoContainer = videoContainer;
-    this.truexContainer = truexContainer;
     this.popupCallback = callback;
     isAdPlaying = false;
 
@@ -294,8 +291,7 @@ public class VideoPlayerController {
 
     TruexAdOptions options = new TruexAdOptions();
     truexAdRenderer.init(vastUrl, options);
-    truexAdRenderer.start(truexContainer);
-    truexContainer.setVisibility(View.VISIBLE);
+    truexAdRenderer.start(videoContainer);
   }
 
   private void onTruexAdEvent(TruexAdEvent event, Map<String, ?> data) {
@@ -331,7 +327,6 @@ public class VideoPlayerController {
     videoPlayerWithAds.showPlayer();
     if (truexAdRenderer != null) {
       truexAdRenderer.stop();
-      truexContainer.setVisibility(View.GONE);
       truexAdRenderer = null;
     }
     if (truexCredit) {
