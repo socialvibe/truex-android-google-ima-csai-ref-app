@@ -53,10 +53,11 @@ public class VideoPlayerController {
   private boolean isAdPlaying;
 
   // View that handles taps to toggle ad pause/resume during video playback.
-  private final View videoContainer;
+  private final ViewGroup videoContainer;
 
   private final PopupCallback popupCallback;
 
+  final private ViewGroup truexContainer;
   private TruexAdRenderer truexAdRenderer;
   private Boolean truexCredit;
 
@@ -153,11 +154,13 @@ public class VideoPlayerController {
   public VideoPlayerController(
       Context context,
       VideoPlayerWithAds videoPlayerWithAds,
-      View videoContainer,
+      ViewGroup videoContainer,
+      ViewGroup truexContainer,
       String language,
       PopupCallback callback) {
     this.videoPlayerWithAds = videoPlayerWithAds;
     this.videoContainer = videoContainer;
+    this.truexContainer = truexContainer;
     this.popupCallback = callback;
     isAdPlaying = false;
 
@@ -270,10 +273,15 @@ public class VideoPlayerController {
   private void playInteractiveAd(String vastUrl) {
     adsManager.pause();
 
-    videoPlayerWithAds.disableControls();
-
     // pre seek to the end in case we want to play the fallback ads.
     videoPlayerWithAds.seekToEnd();
+
+//    if (adsLoader != null) {
+//      this.playFallbackAds();
+//      return;
+//    }
+
+    videoPlayerWithAds.disableControls();
 
     // On some older 4K devices we need to actually hide the actual playback view so that truex videos can show.
     videoPlayerWithAds.hidePlayer();
@@ -283,9 +291,11 @@ public class VideoPlayerController {
 
     truexAdRenderer.addEventListener(null, this::onTruexAdEvent); // listen to all events.
 
+
     TruexAdOptions options = new TruexAdOptions();
     truexAdRenderer.init(vastUrl, options);
-    truexAdRenderer.start((ViewGroup) videoContainer);
+    truexAdRenderer.start(truexContainer);
+    truexContainer.setVisibility(View.VISIBLE);
 
     videoPlayerWithAds.setVisibility(View.GONE);
   }
@@ -323,6 +333,7 @@ public class VideoPlayerController {
     videoPlayerWithAds.showPlayer();
     if (truexAdRenderer != null) {
       truexAdRenderer.stop();
+      truexContainer.setVisibility(View.GONE);
       truexAdRenderer = null;
     }
     if (truexCredit) {

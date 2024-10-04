@@ -23,4 +23,10 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
     </com.truex.googlereferenceapp.VideoPlayerWithAds>
+
+    <FrameLayout
+        android:id="@+id/trueXContainer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone"/>
 </LinearLayout>

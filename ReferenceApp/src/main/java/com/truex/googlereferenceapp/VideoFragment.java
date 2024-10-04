@@ -92,15 +92,16 @@ public class VideoFragment extends Fragment {
 
   private void initUi() throws IOException {
     View rootView = getView();
-    VideoPlayerWithAds videoPlayerWithAds =
-        rootView.findViewById(R.id.videoPlayerWithAds);
-    View videoContainer = rootView.findViewById(R.id.videoContainer);
+    VideoPlayerWithAds videoPlayerWithAds = rootView.findViewById(R.id.videoPlayerWithAds);
+    ViewGroup videoContainer = rootView.findViewById(R.id.videoContainer);
+    ViewGroup truexContainer = rootView.findViewById(R.id.trueXContainer);
 
     videoPlayerController =
         new VideoPlayerController(
             this.getActivity(),
           videoPlayerWithAds,
             videoContainer,
+            truexContainer,
             getString(R.string.ad_ui_lang),
             (popupUrl) -> {
                 Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(popupUrl));
