@@ -372,7 +372,7 @@ public class VideoPlayerController {
    */
   public void pause() {
     videoPlayerWithAdPlayback.savePosition();
-    if (adsManager != null && videoPlayerWithAdPlayback.getIsAdDisplayed()) {
+    if (adsManager != null && videoPlayerWithAdPlayback.isPlayingAd()) {
       if (truexAdRenderer != null) truexAdRenderer.pause();
       adsManager.pause();
     } else {
@@ -386,7 +386,7 @@ public class VideoPlayerController {
    */
   public void resume() {
     videoPlayerWithAdPlayback.restorePosition();
-    if (adsManager != null && videoPlayerWithAdPlayback.getIsAdDisplayed()) {
+    if (adsManager != null && videoPlayerWithAdPlayback.isPlayingAd()) {
       adsManager.resume();
       if (truexAdRenderer != null) truexAdRenderer.resume();
     } else {

@@ -52,7 +52,6 @@ public class VideoPlayerWithAdPlayback extends RelativeLayout {
   private AdMediaInfo currentAd;
 
   private ViewGroup adUiContainer;
-  private boolean isAdPlaying;
   private String contentVideoUrl;
 
   private String currentStreamUrl;
@@ -86,7 +85,6 @@ public class VideoPlayerWithAdPlayback extends RelativeLayout {
   }
 
   private void init() {
-    isAdPlaying = false;
     contentHasCompleted = false;
     savedAdPosition = 0;
     savedContentPosition = 0;
@@ -98,7 +96,7 @@ public class VideoPlayerWithAdPlayback extends RelativeLayout {
     adUiContainer = this.getRootView().findViewById(R.id.adUiContainer);
 
     contentProgressProvider = () -> {
-      if (isAdPlaying || videoPlayer.getDuration() <= 0) {
+      if (currentAd != null || videoPlayer.getDuration() <= 0) {
         return VideoProgressUpdate.VIDEO_TIME_NOT_READY;
       }
       return new VideoProgressUpdate(
@@ -132,16 +130,15 @@ public class VideoPlayerWithAdPlayback extends RelativeLayout {
         }
 
         public void onPlayerError(@NonNull PlaybackException error) {
-          if (isAdPlaying) {
-            for (VideoAdPlayer.VideoAdPlayerCallback callback : adCallbacks) {
-              callback.onError(currentAd);
-            }
+          if (currentAd == null) return;
+          for (VideoAdPlayer.VideoAdPlayerCallback callback : adCallbacks) {
+            callback.onError(currentAd);
           }
         }
 
         public void onPlaybackStateChanged(@Player.State int playbackState) {
           if (playbackState == Player.STATE_ENDED) {
-            if (isAdPlaying) {
+            if (currentAd != null) {
               for (VideoAdPlayer.VideoAdPlayerCallback callback : adCallbacks) {
                 callback.onEnded(currentAd);
               }
@@ -190,7 +187,7 @@ public class VideoPlayerWithAdPlayback extends RelativeLayout {
   }
 
   private void updateAdProgress() {
-    if (!isAdPlaying || currentAd == null) return;
+    if (currentAd == null) return;
 
     long position = videoPlayer.getCurrentPosition();
     long duration = videoPlayer.getDuration();
@@ -250,7 +247,7 @@ public class VideoPlayerWithAdPlayback extends RelativeLayout {
    * paused to prepare for ad playback or when app is backgrounded.
    */
   public void savePosition() {
-    if (isAdPlaying) {
+    if (currentAd != null) {
       savedAdPosition = videoPlayer.getCurrentPosition();
     } else {
       savedContentPosition = videoPlayer.getCurrentPosition();
@@ -262,7 +259,7 @@ public class VideoPlayerWithAdPlayback extends RelativeLayout {
    * called when content is resumed after ad playback or when focus has returned to the app.
    */
   public void restorePosition() {
-    if (isAdPlaying) {
+    if (currentAd != null) {
       videoPlayer.seekTo(savedAdPosition);
     } else {
       videoPlayer.seekTo(savedContentPosition);
@@ -289,7 +286,7 @@ public class VideoPlayerWithAdPlayback extends RelativeLayout {
   public void seekTo(long positionMs) {
     logPosition("seekTo", positionMs);
     // Seek only if an ad is not playing. Save the content position either way.
-    if (!isAdPlaying) {
+    if (currentAd == null) {
       videoPlayer.seekTo(positionMs);
     }
     savedContentPosition = positionMs;
@@ -324,7 +321,7 @@ public class VideoPlayerWithAdPlayback extends RelativeLayout {
    * Returns current content video play time.
    */
   public long getContentPosition() {
-    if (isAdPlaying) {
+    if (currentAd != null) {
       return savedContentPosition;
     } else {
       return videoPlayer.getCurrentPosition();
@@ -356,7 +353,6 @@ public class VideoPlayerWithAdPlayback extends RelativeLayout {
       return;
     }
     Log.i(CLASSTAG, "resumeContentAfterAdPlayback");
-    isAdPlaying = false;
     setStreamUrl(contentVideoUrl);
     enableControls();
     seekTo(savedContentPosition);
@@ -384,21 +380,18 @@ public class VideoPlayerWithAdPlayback extends RelativeLayout {
       public void loadAd(@NonNull AdMediaInfo adMediaInfo, @NonNull AdPodInfo adPodInfo) {
         logPosition("loadAd");
         currentAd = adMediaInfo;
-        isAdPlaying = false;
         setStreamUrl(adMediaInfo.getUrl());
       }
 
       @Override
       public void playAd(@NonNull AdMediaInfo info) {
         logPosition("playAd");
-        isAdPlaying = true;
         videoPlayer.play();
       }
 
       @Override
       public void stopAd(@NonNull AdMediaInfo info) {
         currentAd = null;
-        isAdPlaying = false;
       }
 
       @Override
@@ -458,8 +451,8 @@ public class VideoPlayerWithAdPlayback extends RelativeLayout {
   /**
    * Returns if an ad is displayed.
    */
-  public boolean getIsAdDisplayed() {
-    return isAdPlaying;
+  public boolean isPlayingAd() {
+    return currentAd != null;
   }
 
   public ContentProgressProvider getContentProgressProvider() {
