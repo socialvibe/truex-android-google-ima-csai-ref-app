@@ -92,33 +92,10 @@ public class VideoPlayerWithAdPlayback extends RelativeLayout {
     contentHasCompleted = false;
     savedAdPosition = 0;
     savedContentPosition = 0;
-    playerView = this.getRootView().findViewById(R.id.player_view);
     videoPlayer = new ExoPlayer.Builder(this.getContext()).build();
 
-    // @TODO remove if no longer needed.
-    ForwardingPlayer playerWrapper = new ForwardingPlayer(videoPlayer) {
-      @Override
-      public void seekToDefaultPosition() {
-        seekToDefaultPosition(getCurrentMediaItemIndex());
-      }
-
-      @Override
-      public void seekToDefaultPosition(int windowIndex) {
-        seekTo(windowIndex, /* positionMs= */ C.TIME_UNSET);
-      }
-
-      @Override
-      public void seekTo(long positionMs) {
-        seekTo(getCurrentMediaItemIndex(), positionMs);
-      }
-
-      @Override
-      public void seekTo(int windowIndex, long seekPos) {
-        // @TODO seek snapback
-        VideoPlayerWithAdPlayback.this.seekTo(seekPos);
-      }
-    };
-    playerView.setPlayer(playerWrapper);
+    playerView = this.getRootView().findViewById(R.id.player_view);
+    playerView.setPlayer(videoPlayer);
 
     adUiContainer = this.getRootView().findViewById(R.id.adUiContainer);
 
