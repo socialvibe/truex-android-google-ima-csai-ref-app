@@ -92,13 +92,13 @@ public class VideoFragment extends Fragment {
 
   private void initUi() throws IOException {
     View rootView = getView();
-    VideoPlayerWithAds videoPlayerWithAds = rootView.findViewById(R.id.videoPlayerWithAds);
+    VideoPlayerWithAdPlayback videoPlayerWithAdPlayback = rootView.findViewById(R.id.videoPlayerWithAdPlayback);
     ViewGroup videoContainer = rootView.findViewById(R.id.videoContainer);
 
     videoPlayerController =
         new VideoPlayerController(
             this.getActivity(),
-          videoPlayerWithAds,
+          videoPlayerWithAdPlayback,
             videoContainer,
             getString(R.string.ad_ui_lang),
             (popupUrl) -> {

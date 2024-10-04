@@ -45,8 +45,8 @@ import java.util.Locale;
  * Video player that can play content video and ads.
  */
 @OptIn(markerClass = UnstableApi.class)
-public class VideoPlayerWithAds extends RelativeLayout {
-  private static final String CLASSTAG = VideoPlayerWithAds.class.getSimpleName();
+public class VideoPlayerWithAdPlayback extends RelativeLayout {
+  private static final String CLASSTAG = VideoPlayerWithAdPlayback.class.getSimpleName();
 
   // The wrapped video player.
   private PlayerView playerView;
@@ -71,15 +71,15 @@ public class VideoPlayerWithAds extends RelativeLayout {
 
   private final List<VideoAdPlayer.VideoAdPlayerCallback> adCallbacks = new ArrayList<>();
 
-  public VideoPlayerWithAds(Context context, AttributeSet attrs, int defStyle) {
+  public VideoPlayerWithAdPlayback(Context context, AttributeSet attrs, int defStyle) {
     super(context, attrs, defStyle);
   }
 
-  public VideoPlayerWithAds(Context context, AttributeSet attrs) {
+  public VideoPlayerWithAdPlayback(Context context, AttributeSet attrs) {
     super(context, attrs);
   }
 
-  public VideoPlayerWithAds(Context context) {
+  public VideoPlayerWithAdPlayback(Context context) {
     super(context);
   }
 
@@ -117,7 +117,7 @@ public class VideoPlayerWithAds extends RelativeLayout {
       @Override
       public void seekTo(int windowIndex, long seekPos) {
         // @TODO seek snapback
-        VideoPlayerWithAds.this.seekTo(seekPos);
+        VideoPlayerWithAdPlayback.this.seekTo(seekPos);
       }
     };
     playerView.setPlayer(playerWrapper);
