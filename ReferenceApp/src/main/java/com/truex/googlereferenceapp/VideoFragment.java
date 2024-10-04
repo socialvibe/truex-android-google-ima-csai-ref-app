@@ -24,6 +24,7 @@ import java.io.InputStreamReader;
 
 /** The main fragment for displaying video content. */
 public class VideoFragment extends Fragment {
+  private static final String CLASSTAG = VideoFragment.class.getSimpleName();
 
   private VideoPlayerController videoPlayerController;
 
@@ -45,6 +46,7 @@ public class VideoFragment extends Fragment {
 
   @Override
   public void onDetach() {
+    Log.i(CLASSTAG, "onDetach");
     if (isTouchDevice()) {
       // Restore portrait orientation for normal usage on phones and tablets.
       Activity activity = getActivity();
@@ -128,6 +130,7 @@ public class VideoFragment extends Fragment {
 
   @Override
   public void onDestroy() {
+    Log.i(CLASSTAG, "onDestroy");
     if (videoPlayerController != null) {
       videoPlayerController.destroy();
       videoPlayerController = null;

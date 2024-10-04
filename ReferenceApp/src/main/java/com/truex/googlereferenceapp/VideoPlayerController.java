@@ -382,19 +382,21 @@ public class VideoPlayerController {
   }
 
   public void destroy() {
-    videoPlayerWithAds.stop();
+    videoPlayerWithAds.release();
     cleanupAds();
+    if (adsLoader != null) {
+      adsLoader.release();
+    }
   }
 
   private void cleanupAds() {
-    if (adsManager != null) {
-      adsManager.destroy();
-      adsManager = null;
-    }
-
     if (truexAdRenderer != null) {
       truexAdRenderer.stop();
       truexAdRenderer = null;
+    }
+    if (adsManager != null) {
+      adsManager.destroy();
+      adsManager = null;
     }
   }
 }

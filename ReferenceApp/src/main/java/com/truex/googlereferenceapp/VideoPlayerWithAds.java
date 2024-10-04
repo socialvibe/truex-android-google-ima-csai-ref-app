@@ -363,8 +363,17 @@ public class VideoPlayerWithAds extends RelativeLayout {
   }
 
   public void stop() {
-    logPosition("stop");
+    Log.i(CLASSTAG, "stop");
     videoPlayer.stop();
+  }
+
+  /**
+   * For final player cleanup
+   */
+  public void release() {
+    Log.i(CLASSTAG, "release");
+    videoPlayer.stop();
+    videoPlayer.release();
   }
 
   /**
