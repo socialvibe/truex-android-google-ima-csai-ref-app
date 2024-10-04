@@ -274,11 +274,6 @@ public class VideoPlayerController {
     // pre seek to the end in case we want to play the fallback ads.
     videoPlayerWithAdPlayback.seekToEnd();
 
-//    if (adsLoader != null) {
-//      this.playFallbackAds();
-//      return;
-//    }
-
     videoPlayerWithAdPlayback.disableControls();
 
     // On some older 4K devices we need to actually hide the actual playback view so that truex videos can show.
