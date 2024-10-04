@@ -348,7 +348,7 @@ public class VideoPlayerController {
     if (adsManager != null) {
       videoPlayerWithAds.logPosition("playFallbackAds");
       //adsManager.skip(); // "officially" not supported by Google IMA
-      videoPlayerWithAds.seekToEnd();
+      videoPlayerWithAds.seekToEnd(); // ensure the truex placeholder ad completes ASAP
       adsManager.resume();
     }
   }
