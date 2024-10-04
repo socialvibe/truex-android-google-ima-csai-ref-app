@@ -96,15 +96,15 @@ public class VideoFragment extends Fragment {
     ViewGroup videoContainer = rootView.findViewById(R.id.videoContainer);
 
     videoPlayerController =
-        new VideoPlayerController(
-            this.getActivity(),
-          videoPlayerWithAdPlayback,
-            videoContainer,
-            getString(R.string.ad_ui_lang),
-            (popupUrl) -> {
-                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(popupUrl));
-                startActivity(browserIntent);
-            });
+      new VideoPlayerController(
+        this.getActivity(),
+        videoPlayerWithAdPlayback,
+        videoContainer,
+        getString(R.string.ad_ui_lang),
+        (popupUrl) -> {
+          Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(popupUrl));
+          startActivity(browserIntent);
+        });
 
     loadVideo();
   }
