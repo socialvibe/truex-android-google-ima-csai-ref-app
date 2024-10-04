@@ -75,7 +75,7 @@ public class VideoPlayerController {
             /** An event raised when there is an error loading or playing ads. */
             @Override
             public void onAdError(@NonNull AdErrorEvent adErrorEvent) {
-              Log.e(CLASSTAG, "Ad Error: " + adErrorEvent.getError().getMessage());
+              Log.w(CLASSTAG, "Ad Error: " + adErrorEvent.getError().getMessage());
               cleanupAds();
               resumeContent();
             }
@@ -179,7 +179,7 @@ public class VideoPlayerController {
           /** An event raised when there is an error loading or playing ads. */
           @Override
           public void onAdError(@NonNull AdErrorEvent adErrorEvent) {
-            Log.e(CLASSTAG, "Ad Error: " + adErrorEvent.getError());
+            Log.w(CLASSTAG, "Ad Error: " + adErrorEvent.getError());
             resumeContent();
           }
         });
@@ -213,7 +213,7 @@ public class VideoPlayerController {
   public void requestAndPlayAds() {
     if ((currentAdTagUrl == null || currentAdTagUrl.isEmpty()) &&
           (currentAdTagResponse) == null || currentAdTagResponse.isEmpty()) {
-      Log.e(CLASSTAG, "No VAST ad tag URL specified");
+      Log.w(CLASSTAG, "No VAST ad tag URL specified");
       resumeContent();
       return;
     }
