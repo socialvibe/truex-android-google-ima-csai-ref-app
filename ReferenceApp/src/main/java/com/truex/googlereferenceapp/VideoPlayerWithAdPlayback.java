@@ -50,7 +50,6 @@ public class VideoPlayerWithAdPlayback extends RelativeLayout {
   private ExoPlayer videoPlayer;
 
   private AdMediaInfo currentAd;
-  private AdPodInfo currentAdPod;
 
   private ViewGroup adUiContainer;
   private boolean isAdPlaying;
@@ -385,7 +384,6 @@ public class VideoPlayerWithAdPlayback extends RelativeLayout {
       public void loadAd(@NonNull AdMediaInfo adMediaInfo, @NonNull AdPodInfo adPodInfo) {
         logPosition("loadAd");
         currentAd = adMediaInfo;
-        currentAdPod = adPodInfo;
         isAdPlaying = false;
         setStreamUrl(adMediaInfo.getUrl());
       }
@@ -399,7 +397,8 @@ public class VideoPlayerWithAdPlayback extends RelativeLayout {
 
       @Override
       public void stopAd(@NonNull AdMediaInfo info) {
-        // nothing more to do
+        currentAd = null;
+        isAdPlaying = false;
       }
 
       @Override
