@@ -97,16 +97,6 @@ public class VideoPlayerWithAds extends RelativeLayout {
     playerView = this.getRootView().findViewById(R.id.player_view);
     videoPlayer = new ExoPlayer.Builder(this.getContext()).build();
 
-    // Report available commands for seek debugging.
-//    reportAvailableCommands("initial");
-//
-//    videoPlayer.addListener(new Player.Listener() {
-//      @Override
-//      public void onAvailableCommandsChanged(Player.Commands availableCommands) {
-//        reportAvailableCommands("changed");
-//      }
-//    });
-
     // @TODO remove if no longer needed.
     ForwardingPlayer playerWrapper = new ForwardingPlayer(videoPlayer) {
       @Override
@@ -225,23 +215,6 @@ public class VideoPlayerWithAds extends RelativeLayout {
     msg.append(" at ");
     msg.append(positionDisplay(position));
     Log.i(CLASSTAG, msg.toString());
-  }
-
-  private void reportAvailableCommands(String context) {
-    StringBuilder builder = new StringBuilder("*** " + context + ": exoplayer available commands: ");
-    Player.Commands commands = videoPlayer.getAvailableCommands();
-    addAvailableCommands(builder, commands, Player.COMMAND_PLAY_PAUSE, "playPause");
-    addAvailableCommands(builder, commands, Player.COMMAND_SEEK_FORWARD, "seek");
-    addAvailableCommands(builder, commands, Player.COMMAND_SEEK_TO_NEXT_MEDIA_ITEM, "seekToNextMedia");
-    addAvailableCommands(builder, commands, Player.COMMAND_GET_TIMELINE, "getTimeline");
-    Log.i(CLASSTAG, builder.toString());
-  }
-
-  private void addAvailableCommands(StringBuilder builder, Player.Commands availableCommands, int command, String commandName) {
-    if (availableCommands.contains(command)) {
-      builder.append(' ');
-      builder.append(commandName);
-    }
   }
 
   private void updateAdProgress() {
