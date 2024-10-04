@@ -86,10 +86,10 @@ public class VideoPlayerController {
             @Override
             public void onAdEvent(@NonNull AdEvent adEvent) {
               Ad ad = adEvent.getAd();
-              //if (adEvent.getType() != AdEvent.AdEventType.AD_PROGRESS) {
-                String adId = ad == null ? null : ad.getAdId();
-                Log.i(CLASSTAG, "Ad Event: " + adId + ": " + adEvent.getType() + " " + VideoPlayerWithAds.positionDisplay(videoPlayerWithAds.getStreamPosition()));
-              //}
+              if (adEvent.getType() != AdEvent.AdEventType.AD_PROGRESS) {
+                Log.i(CLASSTAG, "Ad Event: " + ad.getAdId() + ": " + adEvent.getType()
+                  + " " + VideoPlayerWithAds.positionDisplay(videoPlayerWithAds.getStreamPosition()));
+              }
 
               // These are the suggested event types to handle. For full list of all ad
               // event types, see the documentation for AdEvent.AdEventType.
