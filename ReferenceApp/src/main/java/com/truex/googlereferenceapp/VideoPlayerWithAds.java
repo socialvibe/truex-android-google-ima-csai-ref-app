@@ -416,6 +416,7 @@ public class VideoPlayerWithAds extends RelativeLayout {
     enableControls();
     seekTo(savedContentPosition);
     videoPlayer.play();
+    showPlayer();
 
     if (contentHasCompleted) {
       videoPlayer.pause();
@@ -528,11 +529,11 @@ public class VideoPlayerWithAds extends RelativeLayout {
   // On some older 4K devices we need to actually hide the actual playback view so that truex videos can show.
   public void hidePlayer() {
     logPosition("hidePlayer");
-    playerView.setVisibility(View.GONE);
+    this.setVisibility(View.GONE);
   }
 
   public void showPlayer() {
     logPosition("showPlayer");
-    playerView.setVisibility(View.VISIBLE);
+    this.setVisibility(View.VISIBLE);
   }
 }

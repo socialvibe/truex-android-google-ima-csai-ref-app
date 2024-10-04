@@ -296,8 +296,6 @@ public class VideoPlayerController {
     truexAdRenderer.init(vastUrl, options);
     truexAdRenderer.start(truexContainer);
     truexContainer.setVisibility(View.VISIBLE);
-
-    videoPlayerWithAds.setVisibility(View.GONE);
   }
 
   private void onTruexAdEvent(TruexAdEvent event, Map<String, ?> data) {
