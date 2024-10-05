@@ -74,7 +74,7 @@ public class VideoPlayerController {
       adsManager = adsManagerLoadedEvent.getAdsManager();
 
       adBreaks = AdBreak.createAdBreaks(adsManager.getAdCuePoints());
-      videoPlayerWithAdPlayback.refreshAdMarkers(adBreaks);
+      videoPlayerWithAdPlayback.setAdMarkers(adBreaks);
 
       // Attach event and error event listeners.
       adsManager.addAdErrorListener(
@@ -206,7 +206,7 @@ public class VideoPlayerController {
   }
 
   private void resumeContent() {
-    videoPlayerWithAdPlayback.refreshAdMarkers(adBreaks);
+    videoPlayerWithAdPlayback.setAdMarkers(adBreaks);
     videoPlayerWithAdPlayback.resumeContentAfterAdPlayback();
     videoPlayerWithAdPlayback.setVisibility(View.VISIBLE);
     isAdPlaying = false;

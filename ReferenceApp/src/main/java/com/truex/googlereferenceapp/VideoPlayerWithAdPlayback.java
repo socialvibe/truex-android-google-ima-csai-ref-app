@@ -421,7 +421,7 @@ public class VideoPlayerWithAdPlayback extends RelativeLayout {
     };
   }
 
-  public void refreshAdMarkers(List<AdBreak> adBreaks) {
+  public void setAdMarkers(List<AdBreak> adBreaks) {
     long[] extraAdGroupTimesMs = null;
     boolean[] extraPlayedAdGroups = null;
     if (adBreaks != null && adBreaks.size() > 0) {
