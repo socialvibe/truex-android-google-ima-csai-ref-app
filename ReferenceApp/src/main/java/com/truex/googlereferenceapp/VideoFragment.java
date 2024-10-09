@@ -1,4 +1,4 @@
-package com.google.ads.interactivemedia.v3.samples.videoplayerapp;
+package com.truex.googlereferenceapp;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -24,6 +24,7 @@ import java.io.InputStreamReader;
 
 /** The main fragment for displaying video content. */
 public class VideoFragment extends Fragment {
+  private static final String CLASSTAG = VideoFragment.class.getSimpleName();
 
   private VideoPlayerController videoPlayerController;
 
@@ -45,6 +46,7 @@ public class VideoFragment extends Fragment {
 
   @Override
   public void onDetach() {
+    Log.i(CLASSTAG, "onDetach");
     if (isTouchDevice()) {
       // Restore portrait orientation for normal usage on phones and tablets.
       Activity activity = getActivity();
@@ -70,9 +72,9 @@ public class VideoFragment extends Fragment {
     }
 
     videoPlayerController.setContentVideo("https://ctv.truex.com/assets/reference-app-stream-no-ads-720p.mp4");
-//    videoPlayerController.setAdTagUrl("https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/ad_rule_samples&ciu_szs=300x250&ad_rule=1&impl=s&gdfp_req=1&env=vp&output=vmap&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ar%3Dpremidpost&cmsid=496&vid=short_onecue&correlator=");
 
-    // Ensure we refer to CTV vs mobile ads.
+    // Use a sample vast xml for demonstration. Ensure we refer to CTV vs mobile ads.
+    //videoPlayerController.setAdTagUrl("https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/ad_rule_samples&ciu_szs=300x250&ad_rule=1&impl=s&gdfp_req=1&env=vp&output=vmap&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ar%3Dpremidpost&cmsid=496&vid=short_onecue&correlator=");
     boolean isTV = getActivity().getPackageManager().hasSystemFeature(PackageManager.FEATURE_LEANBACK);
     int vmapXmlResource = isTV ? R.raw.ctv_truex_vmap : R.raw.mobile_truex_vmap;
     videoPlayerController.setAdTagResponse(getRawFileContents(vmapXmlResource));
@@ -81,37 +83,28 @@ public class VideoFragment extends Fragment {
     handler.postDelayed(new Runnable() {
       @Override
       public void run() {
-        videoPlayerController.requestAndPlayAds(-1);
+        if (videoPlayerController != null) {
+          videoPlayerController.requestAndPlayAds();
+        }
       }
     }, 100);
   }
 
   private void initUi() throws IOException {
     View rootView = getView();
-    VideoPlayerWithAdPlayback videoPlayerWithAdPlayback =
-        rootView.findViewById(R.id.videoPlayerWithAdPlayback);
-    View videoContainer = rootView.findViewById(R.id.videoContainer);
-
-    // Provide an implementation of a logger so we can output SDK events to the UI.
-    VideoPlayerController.Logger logger =
-        new VideoPlayerController.Logger() {
-          @Override
-          public void log(String message) {
-            Log.i("ImaExample", message);
-          }
-        };
+    VideoPlayerWithAdPlayback videoPlayerWithAdPlayback = rootView.findViewById(R.id.videoPlayerWithAdPlayback);
+    ViewGroup videoContainer = rootView.findViewById(R.id.videoContainer);
 
     videoPlayerController =
-        new VideoPlayerController(
-            this.getActivity(),
-            videoPlayerWithAdPlayback,
-            videoContainer,
-            getString(R.string.ad_ui_lang),
-            logger,
-            (popupUrl) -> {
-                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(popupUrl));
-                startActivity(browserIntent);
-            });
+      new VideoPlayerController(
+        this.getActivity(),
+        videoPlayerWithAdPlayback,
+        videoContainer,
+        getString(R.string.ad_ui_lang),
+        (popupUrl) -> {
+          Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(popupUrl));
+          startActivity(browserIntent);
+        });
 
     loadVideo();
   }
@@ -136,6 +129,7 @@ public class VideoFragment extends Fragment {
 
   @Override
   public void onDestroy() {
+    Log.i(CLASSTAG, "onDestroy");
     if (videoPlayerController != null) {
       videoPlayerController.destroy();
       videoPlayerController = null;

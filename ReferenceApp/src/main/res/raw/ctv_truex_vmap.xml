@@ -23,7 +23,7 @@
                 <Creative
                     id="truex-preroll"
                     sequence="1">
-                  <Linear skipoffset="00:00:00">
+                  <Linear>
                     <Duration>00:00:30</Duration>
                     <AdParameters>
                       <![CDATA[ {"vast_config_url":"https://get.truex.com/88ac681ba8d0458e413dc22374194ab9f60b6664/vast/config?dimension_5=PI-2449-ctv-ad"}]]>
@@ -77,7 +77,7 @@
   <vmap:AdBreak
       breakId="midroll-1"
       breakType="linear"
-      timeOffset="00:00:15.000">
+      timeOffset="00:09:10.000">
     <vmap:AdSource
         allowMultipleAds="true"
         followRedirects="true"
@@ -96,7 +96,7 @@
                 <Creative
                     id="truex-midroll"
                     sequence="1">
-                  <Linear skipoffset="00:00:00">
+                  <Linear>
                     <Duration>00:00:30</Duration>
                     <AdParameters>
                       <![CDATA[ {"vast_config_url":"https://get.truex.com/88ac681ba8d0458e413dc22374194ab9f60b6664/vast/config?dimension_5=PI-2449-ctv-ad"}]]>

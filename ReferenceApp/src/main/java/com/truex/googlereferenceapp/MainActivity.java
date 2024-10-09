@@ -1,4 +1,4 @@
-package com.google.ads.interactivemedia.v3.samples.videoplayerapp;
+package com.truex.googlereferenceapp;
 
 import android.os.Bundle;
 import android.util.Log;
@@ -23,7 +23,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void loadDetailFragment() {
         getSupportFragmentManager().beginTransaction()
-                .add(R.id.activity_main, new DetailFragment())
+                .add(R.id.activity_main, new HomePageFragment())
                 .commit();
     }
 }

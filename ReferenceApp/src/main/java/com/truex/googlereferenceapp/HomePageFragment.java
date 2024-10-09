@@ -1,4 +1,4 @@
-package com.google.ads.interactivemedia.v3.samples.videoplayerapp;
+package com.truex.googlereferenceapp;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -9,12 +9,12 @@ import android.widget.Button;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 
-public class DetailFragment extends Fragment implements View.OnClickListener {
-  private static final String CLASSTAG = DetailFragment.class.getSimpleName();
+public class HomePageFragment extends Fragment implements View.OnClickListener {
+  private static final String CLASSTAG = HomePageFragment.class.getSimpleName();
 
   @Override
   public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-    View view = inflater.inflate(R.layout.fragment_detail, container, false);
+    View view = inflater.inflate(R.layout.fragment_home, container, false);
     Button button = view.findViewById(R.id.playbackButton);
     button.setOnClickListener(this);
     return view;
