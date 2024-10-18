@@ -1,5 +1,6 @@
 package com.truex.googlereferenceapp;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
@@ -17,6 +18,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.truex.adrenderer.util.DeviceUtil;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -29,28 +32,30 @@ public class VideoFragment extends Fragment {
   private VideoPlayerController videoPlayerController;
 
   public boolean isTouchDevice() {
-    return getActivity().getPackageManager().hasSystemFeature(PackageManager.FEATURE_TOUCHSCREEN);
+    return DeviceUtil.isTouchDevice(getContext());
   }
 
   @Override
-  public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+  public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    Log.i(CLASSTAG, "onCreateView");
     if (isTouchDevice()) {
       // Ensure we are in landscape for phones and tablets.
       Activity activity = getActivity();
-      activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
+      if (activity != null) activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
     }
 
     View rootView = inflater.inflate(R.layout.fragment_video, container, false);
     return rootView;
   }
 
+  @SuppressLint("SourceLockedOrientationActivity")
   @Override
   public void onDetach() {
     Log.i(CLASSTAG, "onDetach");
     if (isTouchDevice()) {
       // Restore portrait orientation for normal usage on phones and tablets.
       Activity activity = getActivity();
-      activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT);
+      if (activity != null) activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT);
     }
     super.onDetach();
   }
