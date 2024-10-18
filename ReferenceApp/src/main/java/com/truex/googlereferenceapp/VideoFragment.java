@@ -2,9 +2,12 @@ package com.truex.googlereferenceapp;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.UiModeManager;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -18,8 +21,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import com.truex.adrenderer.util.DeviceUtil;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -32,7 +33,16 @@ public class VideoFragment extends Fragment {
   private VideoPlayerController videoPlayerController;
 
   public boolean isTouchDevice() {
-    return DeviceUtil.isTouchDevice(getContext());
+    Context context = getContext();
+    return context != null && context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_TOUCHSCREEN)
+      && !isTV();
+  }
+
+  public boolean isTV() {
+    Context context = getContext();
+    if (context == null) return false;
+    UiModeManager uiModeManager = (UiModeManager) context.getSystemService(Context.UI_MODE_SERVICE);
+    return uiModeManager.getCurrentModeType() == Configuration.UI_MODE_TYPE_TELEVISION;
   }
 
   @Override
