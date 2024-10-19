@@ -349,9 +349,15 @@ public class VideoPlayerWithAdPlayback extends RelativeLayout {
       return;
     }
     Log.i(CLASSTAG, "resumeContentAfterAdPlayback");
+
+    // Ensure there are no remnants of any ad playbacks (matters on some older TV devices)
+    videoPlayer.stop();
+
     setStreamUrl(contentVideoUrl);
     enableControls();
-    seekTo(savedContentPosition);
+
+    if (savedContentPosition > 0) seekTo(savedContentPosition);
+
     videoPlayer.play();
     showPlayer();
 
