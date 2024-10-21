@@ -1,9 +1,13 @@
 package com.truex.googlereferenceapp;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.UiModeManager;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -29,28 +33,39 @@ public class VideoFragment extends Fragment {
   private VideoPlayerController videoPlayerController;
 
   public boolean isTouchDevice() {
-    return getActivity().getPackageManager().hasSystemFeature(PackageManager.FEATURE_TOUCHSCREEN);
+    Context context = getContext();
+    return context != null && context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_TOUCHSCREEN)
+      && !isTV();
+  }
+
+  public boolean isTV() {
+    Context context = getContext();
+    if (context == null) return false;
+    UiModeManager uiModeManager = (UiModeManager) context.getSystemService(Context.UI_MODE_SERVICE);
+    return uiModeManager.getCurrentModeType() == Configuration.UI_MODE_TYPE_TELEVISION;
   }
 
   @Override
-  public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+  public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    Log.i(CLASSTAG, "onCreateView");
     if (isTouchDevice()) {
       // Ensure we are in landscape for phones and tablets.
       Activity activity = getActivity();
-      activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
+      if (activity != null) activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
     }
 
     View rootView = inflater.inflate(R.layout.fragment_video, container, false);
     return rootView;
   }
 
+  @SuppressLint("SourceLockedOrientationActivity")
   @Override
   public void onDetach() {
     Log.i(CLASSTAG, "onDetach");
     if (isTouchDevice()) {
       // Restore portrait orientation for normal usage on phones and tablets.
       Activity activity = getActivity();
-      activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT);
+      if (activity != null) activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT);
     }
     super.onDetach();
   }
