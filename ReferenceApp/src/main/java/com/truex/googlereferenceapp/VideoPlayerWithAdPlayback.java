@@ -294,7 +294,7 @@ public class VideoPlayerWithAdPlayback extends RelativeLayout {
   public void seekToEnd() {
     long duration = videoPlayer.getDuration();
     if (duration > 0) {
-      long beforeEndPos = duration - 500; // allow a bit more playback to get the ad completion.
+      long beforeEndPos = duration - 100; // allow a bit more playback to get the ad completion.
       logPosition("seekToEnd", beforeEndPos);
       videoPlayer.seekTo(beforeEndPos);
     }
