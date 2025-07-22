@@ -116,12 +116,12 @@ public class VideoPlayerController {
                   AdBreak adBreak = adBreaks.get(podInfo.getPodIndex());
                   adBreak.wasStarted = true;
 
-                  if (ad.getAdSystem().contains("trueX")) {
+                  if (ad.getAdSystem().contains("trueX") || ad.getAdSystem().contains("IDVx")) {
                     try {
                       String params = ad.getTraffickingParameters();
                       JSONObject json = new JSONObject(params);
-                      String url = json.getString("vast_config_url");
-                      playInteractiveAd(url);
+                      AdType adType = ad.getAdSystem().contains("IDVx") ? AdType.IDVX : AdType.TRUEX;
+                      playInteractiveAd(json, adType);
                     } catch (JSONException e) {
                       throw new RuntimeException(e);
                     }
@@ -281,7 +281,7 @@ public class VideoPlayerController {
     videoPlayerWithAdPlayback.setContentVideoUrl(videoPath);
   }
 
-  private void playInteractiveAd(String vastUrl) {
+  private void playInteractiveAd(JSONObject params, AdType adType) {
     adsManager.pause();
 
     // pre seek to the end in case we want to play the fallback ads.
@@ -297,9 +297,18 @@ public class VideoPlayerController {
 
     truexAdRenderer.addEventListener(null, this::onTruexAdEvent); // listen to all events.
 
-
     TruexAdOptions options = new TruexAdOptions();
-    truexAdRenderer.init(vastUrl, options);
+    // IDVx ads don't support user cancel stream
+    options.supportsUserCancelStream = (adType == AdType.TRUEX);
+
+    String vastUrl = params.optString("vast_config_url");
+    if (vastUrl.isEmpty()) {
+      truexAdRenderer.init(params, options);
+    }
+    else {
+      truexAdRenderer.init(vastUrl, options);
+    }
+
     truexAdRenderer.start(videoContainer);
   }
 

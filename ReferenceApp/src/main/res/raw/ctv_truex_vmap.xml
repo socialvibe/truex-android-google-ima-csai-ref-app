@@ -26,7 +26,7 @@
                   <Linear>
                     <Duration>00:00:30</Duration>
                     <AdParameters>
-                      <![CDATA[ {"vast_config_url":"https://get.truex.com/88ac681ba8d0458e413dc22374194ab9f60b6664/vast/config?dimension_5=PI-2449-ctv-ad"}]]>
+                      <![CDATA[ {"vast_config_url":"https://get.truex.com/88ac681ba8d0458e413dc22374194ab9f60b6664/vast/config?dimension_5=PI-2449-ctv-ad&ip=108.213.126.253"}]]>
                     </AdParameters>
                     <MediaFiles>
                       <MediaFile
@@ -43,16 +43,22 @@
               </Creatives>
             </InLine>
           </Ad>
+          <Ad id="idvx-preroll" sequence="2">
+            <Wrapper>
+              <AdSystem>IDVx</AdSystem>
+              <VASTAdTagURI><![CDATA[https://qa-rtb-tf.truex.com/745a152e9fcad6248eaa4ef6ae818b4462f9fcb6/vast/idvx/generic?network_user_id=tgt_129_20211000_23&ip=8.8.8.8]]></VASTAdTagURI>
+            </Wrapper>
+          </Ad>
           <Ad
-              id="coffee-preroll"
-              sequence="2">
+              id="airline-preroll"
+              sequence="3">
             <InLine>
               <AdSystem>GDFP</AdSystem>
-              <AdTitle>Coffee Preroll</AdTitle>
+              <AdTitle>Airline Preroll</AdTitle>
               <Creatives>
                 <Creative
-                    id="coffee-preroll"
-                    sequence="2">
+                    id="airline-preroll"
+                    sequence="3">
                   <Linear>
                     <Duration>00:00:30</Duration>
                     <MediaFiles>
@@ -63,7 +69,7 @@
                           scalable="true"
                           type="video/mp4"
                           width="1280">
-                        <![CDATA[https://ctv.truex.com/assets/coffee-720p.mp4]]></MediaFile>
+                        <![CDATA[https://ctv.truex.com/assets/airline-720p.mp4]]></MediaFile>
                     </MediaFiles>
                   </Linear>
                 </Creative>
