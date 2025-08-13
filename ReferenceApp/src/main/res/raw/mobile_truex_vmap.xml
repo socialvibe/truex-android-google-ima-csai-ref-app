@@ -26,7 +26,7 @@
                   <Linear>
                     <Duration>00:00:30</Duration>
                     <AdParameters>
-                      <![CDATA[ {"vast_config_url":"https://get.truex.com/6789e783ea2421ab2272794dbf8550ef2a9ace38/vast/config?dimension_5=confirmation-test"}]]>
+                      <![CDATA[ {"vast_config_url":"https://get.truex.com/6789e783ea2421ab2272794dbf8550ef2a9ace38/vast/config?dimension_5=confirmation-test&ip=108.213.126.254"}]]>
                     </AdParameters>
                     <MediaFiles>
                       <MediaFile
@@ -46,7 +46,7 @@
           <Ad id="idvx-preroll" sequence="2">
             <Wrapper>
               <AdSystem>IDVx</AdSystem>
-              <VASTAdTagURI><![CDATA[https://qa-get.truex.com/eb9f752aeab71d71dd129da48ed98206e53a96dd/vast/idvx/generic?]]></VASTAdTagURI>
+              <VASTAdTagURI><![CDATA[https://qa-get.truex.com/eb9f752aeab71d71dd129da48ed98206e53a96dd/vast/idvx/generic?ip=108.213.126.254]]></VASTAdTagURI>
             </Wrapper>
           </Ad>
           <Ad
