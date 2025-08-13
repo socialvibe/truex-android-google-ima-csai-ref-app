@@ -1,7 +1,7 @@
 # TrueX Client-Side Google IMA Android Reference App
 
-## Reference app for Android Mobile TruexAdRenderer integration
-This is an Android Mobile application that builds on top of Google's custom IMA example, https://github.com/googleads/googleads-ima-android (Advanced sample).  This app showcases how to integrate the TrueX library in combination with Google Client Side IMA ads.  The library is also often referenced to as the TrueX Ad Renderer, or TAR.
+## Reference app for Android TV and Fire TV TAR (TruexAdRenderer) integration
+This is an AndroidTV / FireTV application that builds on top of Google's custom IMA example, https://github.com/googleads/googleads-ima-android (Advanced sample).  This app showcases how to integrate the TrueX library in combination with Google Client Side IMA ads.  The library is also often referenced to as the TrueX Ad Renderer, or TAR.
 
 
 ### Access the TrueX Ad Renderer Library
@@ -18,7 +18,7 @@ repositories {
 Add the TAR dependency to your project
 ```
     // We recommend using a specific version, but using the latest patch release for any critical hotfixes
-    implementation 'com.truex:TruexAdRenderer-Mobile:2.0.+
+    implementation 'com.truex:TruexAdRenderer-Android:2.8.2'
 ```
 
 ## Steps
@@ -37,7 +37,7 @@ The following steps are a guideline for the TAR integration.  This assumes you h
 ### Install Steps
 
 * Clone the `master` branch of the `ReferenceApp` repository
-    * `git clone https://github.com/socialvibe/truex-android-mobile-reference-app.git`
+    * `git clone https://github.com/socialvibe/truex-android-google-ima-csai-ref-app.git`
 
 * Open ReferenceApp with Android Studio
     * Open Android Studio
@@ -47,9 +47,10 @@ The following steps are a guideline for the TAR integration.  This assumes you h
 
 #### Run on Virtual Device
 * Create a Virtual Device
-    * Select `Run 'app'` or `Debug 'app'` in Android Studio
+    * Select `Run 'ReferenceApp'` or `Debug 'ReferenceApp'` in Android Studio
     * Select `Create New Virtual Device`
-    * Select the an appropriate mobile device
+    * Select the `TV` category
+    * Select a device definition
     * Select a system image
     * Select `Finish` to finish creating the Virtual Device
 * Select `Run 'app'` or `Debug 'app'` in Android Studio
